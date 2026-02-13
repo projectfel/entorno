@@ -1,67 +1,124 @@
-import { Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { supermarkets } from "@/data/mockData";
-import MarketCard from "@/components/MarketCard";
-import heroBanner from "@/assets/hero-banner.jpg";
+import HeroSection from "@/components/HeroSection";
+import CategoryBar from "@/components/CategoryBar";
+import StoreCard from "@/components/StoreCard";
+import FeaturedDeals from "@/components/FeaturedDeals";
+import LoyaltyBanner from "@/components/LoyaltyBanner";
+import GlobalSearch from "@/components/GlobalSearch";
+import { Store, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const [busca, setBusca] = useState("");
+  const [categoriaAtiva, setCategoriaAtiva] = useState<string | null>(null);
 
-  const filtered = supermarkets.filter(
-    (m) =>
-      m.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      m.categorias.some((c) => c.toLowerCase().includes(busca.toLowerCase()))
-  );
+  const filtered = useMemo(() => {
+    return supermarkets.filter((m) => {
+      const matchBusca =
+        !busca ||
+        m.nome.toLowerCase().includes(busca.toLowerCase()) ||
+        m.categorias.some((c) => c.toLowerCase().includes(busca.toLowerCase())) ||
+        m.produtos.some((p) => p.nome.toLowerCase().includes(busca.toLowerCase()));
+
+      const matchCategoria =
+        !categoriaAtiva ||
+        m.categorias.includes(categoriaAtiva) ||
+        m.produtos.some((p) => p.categoria === categoriaAtiva);
+
+      return matchBusca && matchCategoria;
+    });
+  }, [busca, categoriaAtiva]);
 
   const abertos = filtered.filter((m) => m.aberto);
   const fechados = filtered.filter((m) => !m.aberto);
 
+  // Best deals across all stores
+  const destaques = useMemo(() => {
+    return supermarkets
+      .flatMap((m) =>
+        m.produtos
+          .filter((p) => p.destaque || p.precoOriginal)
+          .map((p) => ({ ...p, storeName: m.nome, storeId: m.id }))
+      )
+      .slice(0, 4);
+  }, []);
+
   return (
-    <main>
-      {/* Hero */}
-      <section className="relative h-64 sm:h-80 overflow-hidden">
-        <img
-          src={heroBanner}
-          alt="Mercado do bairro Lagoa Azul"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8">
-          <div className="mx-auto max-w-6xl">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground animate-fade-in">
-              O Entorno
-            </h1>
-            <p className="mt-1 text-muted-foreground animate-slide-up">
-              Seu mercado de bairro, a um toque de distância
-            </p>
+    <main className="pb-8">
+      {/* Hero with search */}
+      <HeroSection busca={busca} onBuscaChange={setBusca} />
+
+      {/* Search results dropdown */}
+      <div className="mx-auto max-w-lg px-4 relative -mt-2 z-20">
+        <GlobalSearch busca={busca} onBuscaChange={setBusca} />
+      </div>
+
+      {/* Category filter */}
+      <CategoryBar categoriaAtiva={categoriaAtiva} onCategoriaChange={setCategoriaAtiva} />
+
+      {/* Featured deals */}
+      <FeaturedDeals />
+
+      {/* Loyalty banner */}
+      <LoyaltyBanner />
+
+      {/* Featured products across stores */}
+      {destaques.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 mt-12">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+              <TrendingUp className="h-4 w-4 text-accent" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">Ofertas em Destaque</h2>
+              <p className="text-xs text-muted-foreground">Os melhores preços do bairro</p>
+            </div>
           </div>
-        </div>
-      </section>
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            {destaques.map((p) => (
+              <div
+                key={`${p.storeId}-${p.id}`}
+                className="rounded-2xl border bg-card p-4 transition-all hover:shadow-md"
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {p.storeName}
+                </span>
+                <h4 className="mt-1 font-semibold text-card-foreground text-sm truncate">{p.nome}</h4>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-lg font-bold text-primary">
+                    R$ {p.preco.toFixed(2).replace(".", ",")}
+                  </span>
+                  {p.precoOriginal && (
+                    <span className="text-xs text-muted-foreground line-through">
+                      R$ {p.precoOriginal.toFixed(2).replace(".", ",")}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Search */}
-      <section className="mx-auto max-w-6xl px-4 -mt-5 relative z-10">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Buscar mercados ou categorias..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="w-full rounded-xl border bg-card py-3.5 pl-12 pr-4 text-card-foreground shadow-md placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-      </section>
-
-      {/* Open markets */}
-      <section className="mx-auto max-w-6xl px-4 mt-8">
+      {/* Open stores */}
+      <section className="mx-auto max-w-6xl px-4 mt-12">
         {abertos.length > 0 && (
           <>
-            <h2 className="mb-4 text-xl font-bold text-foreground">
-              Abertos agora <span className="text-primary">({abertos.length})</span>
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10">
+                <Store className="h-4 w-4 text-[hsl(var(--success))]" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">
+                  Abertos agora{" "}
+                  <span className="text-primary">({abertos.length})</span>
+                </h2>
+                <p className="text-xs text-muted-foreground">Peça agora e receba em minutos</p>
+              </div>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {abertos.map((m) => (
-                <MarketCard key={m.id} market={m} />
+                <StoreCard key={m.id} market={m} />
               ))}
             </div>
           </>
@@ -69,12 +126,12 @@ const Index = () => {
 
         {fechados.length > 0 && (
           <>
-            <h2 className="mb-4 mt-10 text-xl font-bold text-foreground">
-              Fechados no momento
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 opacity-70">
+            <div className="flex items-center gap-2 mb-5 mt-12">
+              <h2 className="text-lg font-semibold text-muted-foreground">Fechados no momento</h2>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
               {fechados.map((m) => (
-                <MarketCard key={m.id} market={m} />
+                <StoreCard key={m.id} market={m} />
               ))}
             </div>
           </>
@@ -82,7 +139,8 @@ const Index = () => {
 
         {filtered.length === 0 && (
           <div className="py-20 text-center text-muted-foreground">
-            <p className="text-lg">Nenhum mercado encontrado</p>
+            <div className="text-5xl mb-4">🔍</div>
+            <p className="text-lg font-medium">Nenhum mercado encontrado</p>
             <p className="text-sm mt-1">Tente buscar por outro nome ou categoria</p>
           </div>
         )}
