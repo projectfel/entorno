@@ -13,6 +13,7 @@ import CartDrawer from "@/components/CartDrawer";
 import Index from "./pages/Index";
 import MarketPage from "./pages/MarketPage";
 import Dashboard from "./pages/Dashboard";
+import MeusPedidos from "./pages/MeusPedidos";
 import TermosDeUso from "./pages/TermosDeUso";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -23,7 +24,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 min cache
+      staleTime: 5 * 60 * 1000,
       retry: 2,
       refetchOnWindowFocus: false,
     },
@@ -42,7 +43,6 @@ const App = () => (
               <Header />
               <CartDrawer />
               <Routes>
-                {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/mercado/:id" element={<MarketPage />} />
                 <Route path="/login" element={<Login />} />
@@ -52,15 +52,8 @@ const App = () => (
                 <Route path="/termos" element={<TermosDeUso />} />
                 <Route path="/privacidade" element={<TermosDeUso />} />
 
-                {/* Protected routes */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/meus-pedidos" element={<ProtectedRoute><MeusPedidos /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

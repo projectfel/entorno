@@ -1,13 +1,35 @@
-import { Flame, ArrowRight } from "lucide-react";
-import { supermarkets } from "@/data/mockData";
+import { Flame } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import ComboCard from "./ComboCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const FeaturedDeals = () => {
-  const allCombos = supermarkets.flatMap((m) =>
-    m.combos.map((c) => ({ ...c, storeName: m.nome, storeId: m.id }))
-  );
+  const { data: combos, isLoading } = useQuery({
+    queryKey: ["combos", "active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("combos")
+        .select("*, stores(name)")
+        .eq("active", true)
+        .limit(6);
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
-  if (allCombos.length === 0) return null;
+  if (isLoading) {
+    return (
+      <section className="mx-auto max-w-6xl px-4 mt-12">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-40 w-full rounded-2xl" />)}
+        </div>
+      </section>
+    );
+  }
+
+  if (!combos || combos.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-6xl px-4 mt-12">
@@ -22,10 +44,19 @@ const FeaturedDeals = () => {
           </div>
         </div>
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {allCombos.map((combo) => (
-          <ComboCard key={combo.id} combo={combo} />
+        {combos.map((combo) => (
+          <ComboCard
+            key={combo.id}
+            combo={{
+              id: combo.id,
+              nome: combo.name,
+              descricao: combo.description || "",
+              precoCombo: Number(combo.combo_price),
+              precoOriginal: Number(combo.original_price ?? combo.combo_price),
+              itens: [],
+            }}
+          />
         ))}
       </div>
     </section>
