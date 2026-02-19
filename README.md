@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
+# O Entorno — Marketplace de Bairro
 
-## Project info
+Plataforma marketplace local que conecta mercados de bairro aos consumidores do Entorno, permitindo compras online com entrega local via WhatsApp.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Stack Tecnológica
 
-## How can I edit this code?
+- **Frontend:** React 18 + TypeScript + Vite
+- **UI:** Tailwind CSS + shadcn/ui
+- **Backend:** Lovable Cloud (Supabase)
+- **Estado/Cache:** TanStack React Query
+- **Autenticação:** Lovable Cloud Auth com RLS
 
-There are several ways of editing your application.
+## 👥 Perfis de Usuário
 
-**Use Lovable**
+| Perfil | Acesso |
+|--------|--------|
+| **Cliente** | Navegar mercados, comprar, acompanhar pedidos |
+| **Lojista** | Dashboard com CRUD de produtos, gestão de pedidos, configurações da loja |
+| **Admin** | Painel administrativo completo: cadastrar mercados, gerenciar usuários e pedidos |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 📁 Estrutura do Projeto
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+src/
+├── components/     # Componentes reutilizáveis (Header, Cards, Skeletons)
+├── contexts/       # AuthContext, CartContext
+├── hooks/          # useStores, useProducts, useOrders, useUploadImage
+├── pages/          # Index, MarketPage, Dashboard, Admin, Login, etc.
+├── services/       # Camada de dados (auth, stores, products, orders, admin)
+├── integrations/   # Cliente Supabase (auto-gerado)
+└── lib/            # Utilitários
+```
 
-**Use your preferred IDE**
+## 🔐 Segurança
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Autenticação com email/senha via Lovable Cloud Auth
+- Row Level Security (RLS) em todas as tabelas
+- Roles separadas em tabela `user_roles` (prevenção de escalação de privilégio)
+- Edge function com `service_role` para operações admin
+- Validação de inputs com Zod
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## 🛠️ Como rodar localmente
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+git clone <URL_DO_REPOSITÓRIO>
+cd o-entorno
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 📦 Deploy
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+O deploy é feito automaticamente pelo Lovable. Clique em **Publicar** no editor para atualizar o site em produção.
 
-**Use GitHub Codespaces**
+**URL de produção:** https://entorno.lovable.app
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📋 Fluxos Principais
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. **Cliente:** Cadastro → Login → Navegar mercados → Adicionar ao carrinho → Finalizar via WhatsApp → Acompanhar pedido
+2. **Lojista:** Login → Dashboard → Gerenciar produtos (CRUD) → Receber pedidos → Confirmar/Entregar
+3. **Admin:** Login → Painel Admin → Cadastrar novos mercados (cria lojista automaticamente) → Ativar/desativar mercados → Gerenciar permissões

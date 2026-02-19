@@ -19,6 +19,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import EsqueciSenha from "./pages/EsqueciSenha";
 import ResetPassword from "./pages/ResetPassword";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -53,7 +54,8 @@ const App = () => (
                 <Route path="/privacidade" element={<TermosDeUso />} />
 
                 <Route path="/meus-pedidos" element={<ProtectedRoute><MeusPedidos /></ProtectedRoute>} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute requiredRole="moderator"><Dashboard /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
