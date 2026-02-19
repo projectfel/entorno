@@ -1,4 +1,4 @@
-import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard } from "lucide-react";
+import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -59,6 +59,14 @@ const Header = () => {
                       <Link to="/dashboard" className="cursor-pointer">
                         <LayoutDashboard className="h-4 w-4 mr-2" />
                         Painel do Lojista
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {role === "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <ShieldCheck className="h-4 w-4 mr-2" />
+                        Administração
                       </Link>
                     </DropdownMenuItem>
                   )}
