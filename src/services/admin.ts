@@ -68,15 +68,22 @@ export const adminService = {
   },
 
   async getStats() {
-    const [stores, profiles, orders] = await Promise.all([
-      supabase.from("stores").select("id", { count: "exact", head: true }),
-      supabase.from("profiles").select("id", { count: "exact", head: true }),
-      supabase.from("orders").select("id", { count: "exact", head: true }),
-    ]);
+    // Count all stores
+    const storesRes = await supabase.from("stores").select("id", { count: "exact", head: true });
+
+    // Count only clients (role = 'user')
+    const clientsRes = await supabase
+      .from("user_roles")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "user");
+
+    // Count all orders
+    const ordersRes = await supabase.from("orders").select("id", { count: "exact", head: true });
+
     return {
-      totalStores: stores.count ?? 0,
-      totalUsers: profiles.count ?? 0,
-      totalOrders: orders.count ?? 0,
+      totalStores: storesRes.count ?? 0,
+      totalClients: clientsRes.count ?? 0,
+      totalOrders: ordersRes.count ?? 0,
     };
   },
 };

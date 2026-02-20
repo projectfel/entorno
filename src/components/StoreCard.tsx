@@ -1,14 +1,16 @@
+import { memo } from "react";
 import { Star, Clock, MapPin, Truck, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { getStoreStatusLabel } from "@/lib/storeStatus";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface StoreCardProps {
   store: Tables<"stores">;
 }
 
-const StoreCard = ({ store }: StoreCardProps) => {
-  const isOpen = store.status === "open";
+const StoreCard = memo(({ store }: StoreCardProps) => {
+  const { label, isOpen } = getStoreStatusLabel(store);
 
   return (
     <Link
@@ -34,7 +36,7 @@ const StoreCard = ({ store }: StoreCardProps) => {
         ) : (
           <Badge variant="secondary" className="absolute left-3 top-3 gap-1 opacity-90">
             <Clock className="h-3 w-3" />
-            Fechado
+            {label}
           </Badge>
         )}
 
@@ -74,6 +76,8 @@ const StoreCard = ({ store }: StoreCardProps) => {
       </div>
     </Link>
   );
-};
+});
+
+StoreCard.displayName = "StoreCard";
 
 export default StoreCard;
