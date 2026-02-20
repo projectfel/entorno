@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, Store, Clock, Plus, Trash2, ArrowLeft, Pencil, Search, Image, Save, X, ShoppingBag, Settings } from "lucide-react";
+import { Package, Store, Clock, Plus, Trash2, ArrowLeft, Pencil, Search, Image as ImageIcon, Save, X, ShoppingBag, Settings, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyStores } from "@/hooks/useStores";
@@ -12,15 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -51,6 +44,7 @@ const Dashboard = () => {
     opens_at: "", closes_at: "", delivery_fee: "", min_order: "",
     delivery_time_min: "", delivery_time_max: "",
   });
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const resetForm = () => {
     setForm({ name: "", price: "", description: "", unit: "un", image_url: "" });
@@ -67,6 +61,19 @@ const Dashboard = () => {
       toast.success("Imagem carregada!");
     } catch {
       toast.error("Erro ao carregar imagem");
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !store) return;
+    try {
+      const result = await upload(file, `covers/${store.id}`);
+      await storesService.update(store.id, { cover_image: result.url });
+      setCoverPreview(result.url);
+      toast.success("Foto de capa atualizada!");
+    } catch {
+      toast.error("Erro ao atualizar foto de capa");
     }
   };
 
@@ -117,7 +124,6 @@ const Dashboard = () => {
     try {
       await storesService.update(store.id, { status: newStatus });
       toast.success(newStatus === "open" ? "Loja aberta!" : "Loja fechada!");
-      // Force refetch
       window.location.reload();
     } catch {
       toast.error("Erro ao alterar status");
@@ -142,6 +148,7 @@ const Dashboard = () => {
       min_order: String(store.min_order ?? 0), delivery_time_min: String(store.delivery_time_min ?? 30),
       delivery_time_max: String(store.delivery_time_max ?? 60),
     });
+    setCoverPreview(store.cover_image || null);
     setShowSettings(true);
   };
 
@@ -194,6 +201,26 @@ const Dashboard = () => {
         <ArrowLeft className="h-4 w-4" />
         Voltar ao marketplace
       </Link>
+
+      {/* Cover image section */}
+      <div className="relative mb-6 h-40 sm:h-52 rounded-2xl overflow-hidden border">
+        {(coverPreview || store.cover_image) ? (
+          <img src={coverPreview || store.cover_image!} alt="Capa" className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-secondary flex items-center justify-center">
+            <span className="text-4xl">🏪</span>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+        <label className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-card/90 backdrop-blur-sm px-3 py-2 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors shadow-md">
+          <Upload className="h-3.5 w-3.5" />
+          {uploading ? "Enviando..." : "Alterar capa"}
+          <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
+        </label>
+        <div className="absolute bottom-3 left-3">
+          <h2 className="text-lg font-bold text-primary-foreground drop-shadow-md">{store.name}</h2>
+        </div>
+      </div>
 
       <div className="mb-8 flex items-start justify-between">
         <div>
@@ -296,7 +323,7 @@ const Dashboard = () => {
               </div>
               <div className="mt-3 flex items-center gap-3">
                 <label className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm text-muted-foreground cursor-pointer hover:bg-secondary transition-colors">
-                  <Image className="h-4 w-4" />
+                  <ImageIcon className="h-4 w-4" />
                   {uploading ? "Enviando..." : form.image_url ? "Alterar imagem" : "Adicionar imagem"}
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                 </label>
@@ -320,7 +347,12 @@ const Dashboard = () => {
           ) : filteredProducts.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
               <Package className="mx-auto h-10 w-10 mb-3 opacity-40" />
-              <p className="font-medium">Nenhum produto encontrado</p>
+              <p className="font-medium">{busca ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}</p>
+              {!busca && (
+                <button onClick={() => { resetForm(); setShowAdd(true); }} className="mt-3 text-sm text-primary hover:underline">
+                  Adicionar primeiro produto
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -375,6 +407,7 @@ const Dashboard = () => {
             <div className="py-12 text-center text-muted-foreground">
               <ShoppingBag className="mx-auto h-10 w-10 mb-3 opacity-40" />
               <p className="font-medium">Nenhum pedido ainda</p>
+              <p className="text-sm mt-1">Os pedidos dos clientes aparecerão aqui</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -430,6 +463,26 @@ const Dashboard = () => {
               <h2 className="text-lg font-bold text-card-foreground">Configurações da Loja</h2>
               <button onClick={() => setShowSettings(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
             </div>
+
+            {/* Cover image in settings */}
+            <div className="mb-4">
+              <label className="text-xs font-medium text-muted-foreground">Foto de capa</label>
+              <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
+                {coverPreview ? (
+                  <img src={coverPreview} alt="Capa" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full bg-secondary flex items-center justify-center">
+                    <span className="text-3xl">🏪</span>
+                  </div>
+                )}
+                <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2.5 py-1.5 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
+                  <Upload className="h-3 w-3" />
+                  {uploading ? "Enviando..." : "Alterar"}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
+                </label>
+              </div>
+            </div>
+
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Nome</label>

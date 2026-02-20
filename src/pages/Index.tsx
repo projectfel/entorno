@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useStores } from "@/hooks/useStores";
 import { useFeaturedProducts } from "@/hooks/useProducts";
+import { isStoreOpen } from "@/lib/storeStatus";
 import HeroSection from "@/components/HeroSection";
 import CategoryBar from "@/components/CategoryBar";
 import StoreCard from "@/components/StoreCard";
@@ -25,8 +26,8 @@ const Index = () => {
     });
   }, [stores, busca]);
 
-  const abertos = filtered.filter((s) => s.status === "open");
-  const fechados = filtered.filter((s) => s.status !== "open");
+  const abertos = filtered.filter((s) => isStoreOpen(s));
+  const fechados = filtered.filter((s) => !isStoreOpen(s));
 
   return (
     <main className="pb-8">

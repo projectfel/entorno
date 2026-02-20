@@ -3,6 +3,7 @@ import { ArrowLeft, Star, Clock, MapPin, Truck, Heart, Share2 } from "lucide-rea
 import { useState } from "react";
 import { useStore } from "@/hooks/useStores";
 import { useProducts } from "@/hooks/useProducts";
+import { getStoreStatusLabel } from "@/lib/storeStatus";
 import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,8 @@ const MarketPage = () => {
       </div>
     );
   }
+
+  const { label: statusLabel, isOpen } = getStoreStatusLabel(store);
 
   // Build categories from products
   const categories = [...new Set((products || []).map((p) => p.categories?.name).filter(Boolean))];
@@ -73,10 +76,10 @@ const MarketPage = () => {
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
           <div className="mx-auto max-w-6xl">
             <div className="flex items-center gap-2 mb-2">
-              {store.status === "open" ? (
+              {isOpen ? (
                 <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] border-0">Aberto agora</Badge>
               ) : (
-                <Badge variant="secondary">Fechado</Badge>
+                <Badge variant="secondary">{statusLabel}</Badge>
               )}
               <Badge variant="outline" className="bg-card/50 backdrop-blur-sm border-border/50">
                 {store.delivery_time_min ?? 30}-{store.delivery_time_max ?? 60} min
@@ -150,6 +153,12 @@ const MarketPage = () => {
         {productsLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => <ProductCardSkeleton key={i} />)}
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="py-12 text-center text-muted-foreground">
+            <div className="text-4xl mb-3">📦</div>
+            <p className="font-medium">Nenhum produto disponível</p>
+            <p className="text-sm mt-1">Este mercado ainda não adicionou produtos</p>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

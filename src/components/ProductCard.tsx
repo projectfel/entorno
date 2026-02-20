@@ -1,5 +1,5 @@
+import { memo, useState } from "react";
 import { Plus, Check, Minus } from "lucide-react";
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import type { Tables } from "@/integrations/supabase/types";
@@ -11,7 +11,7 @@ interface ProductCardProps {
   storeWhatsapp: string;
 }
 
-const ProductCard = ({ product, storeId, storeName, storeWhatsapp }: ProductCardProps) => {
+const ProductCard = memo(({ product, storeId, storeName, storeWhatsapp }: ProductCardProps) => {
   const { addItem, items, updateQuantity, removeItem } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -19,7 +19,6 @@ const ProductCard = ({ product, storeId, storeName, storeWhatsapp }: ProductCard
   const quantity = cartItem?.quantidade || 0;
 
   const handleAdd = () => {
-    // Adapt DB product to cart format
     const cartProduct = {
       id: product.id,
       nome: product.name,
@@ -103,6 +102,8 @@ const ProductCard = ({ product, storeId, storeName, storeWhatsapp }: ProductCard
       )}
     </div>
   );
-};
+});
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;

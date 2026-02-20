@@ -9,12 +9,8 @@ import {
   Shield, ShieldCheck, User as UserIcon, Eye, EyeOff,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
-interface Stats { totalStores: number; totalUsers: number; totalOrders: number; }
+interface Stats { totalStores: number; totalClients: number; totalOrders: number; }
 
 const Admin = () => {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -64,14 +60,20 @@ const Admin = () => {
       return;
     }
     setCreating(true);
+    const toastId = toast.loading("Criando mercado e lojista...");
     try {
       await adminService.createStoreOwner(form);
-      toast.success("Mercado e lojista criados com sucesso!");
+      toast.success("Mercado criado com sucesso! O lojista já pode acessar o painel.", { id: toastId, duration: 5000 });
       setShowCreate(false);
       setForm({ email: "", password: "", displayName: "", storeName: "", whatsapp: "", address: "", neighborhood: "Lagoa Azul" });
       loadData();
     } catch (err: any) {
-      toast.error(err?.message || "Erro ao criar mercado");
+      const msg = err?.message || "Erro ao criar mercado";
+      if (msg.includes("already been registered")) {
+        toast.error("Este e-mail já está cadastrado. Use outro e-mail.", { id: toastId });
+      } else {
+        toast.error(msg, { id: toastId });
+      }
     } finally {
       setCreating(false);
     }
@@ -182,8 +184,8 @@ const Admin = () => {
               <Users className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{stats?.totalUsers ?? 0}</p>
-              <p className="text-sm text-muted-foreground">Usuários</p>
+              <p className="text-2xl font-bold text-card-foreground">{stats?.totalClients ?? 0}</p>
+              <p className="text-sm text-muted-foreground">Clientes</p>
             </div>
           </div>
         </div>
@@ -218,6 +220,7 @@ const Admin = () => {
             <div className="py-12 text-center text-muted-foreground">
               <Store className="mx-auto h-10 w-10 mb-3 opacity-40" />
               <p className="font-medium">Nenhum mercado encontrado</p>
+              <p className="text-sm mt-1">Clique em "Novo Mercado" para cadastrar o primeiro</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -302,6 +305,7 @@ const Admin = () => {
             <div className="py-12 text-center text-muted-foreground">
               <ShoppingBag className="mx-auto h-10 w-10 mb-3 opacity-40" />
               <p className="font-medium">Nenhum pedido registrado</p>
+              <p className="text-sm mt-1">Os pedidos dos clientes aparecerão aqui</p>
             </div>
           ) : (
             <div className="space-y-2">
