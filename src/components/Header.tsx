@@ -35,6 +35,13 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link
+            to="/compra-voz"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            title="Compra por Voz"
+          >
+            <Mic className="h-5 w-5" />
+          </Link>
           {!loading && (
             user ? (
               <DropdownMenu>
