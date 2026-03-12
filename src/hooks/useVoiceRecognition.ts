@@ -17,10 +17,7 @@ export function useVoiceRecognition() {
     isSupported: typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window),
   });
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const start = useCallback(() => {
+  const recognitionRef = useRef<any>(null);
     if (!state.isSupported) {
       setState((s) => ({ ...s, error: "Seu navegador não suporta reconhecimento de voz. Use o Chrome ou Edge." }));
       return;
