@@ -18,18 +18,20 @@ export function useVoiceRecognition() {
   });
 
   const recognitionRef = useRef<any>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const start = useCallback(() => {
     if (!state.isSupported) {
       setState((s) => ({ ...s, error: "Seu navegador não suporta reconhecimento de voz. Use o Chrome ou Edge." }));
       return;
     }
 
-    // Clean up previous
     if (recognitionRef.current) {
       recognitionRef.current.abort();
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognitionCtor();
 
     recognition.lang = "pt-BR";
     recognition.continuous = true;
@@ -38,18 +40,16 @@ export function useVoiceRecognition() {
 
     recognition.onstart = () => {
       setState((s) => ({ ...s, isListening: true, error: null, interimTranscript: "" }));
-      // Safety timeout: stop after 30s of silence
       timeoutRef.current = setTimeout(() => {
         recognition.stop();
       }, 30000);
     };
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      // Reset timeout on each result
+    recognition.onresult = (event: any) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         recognition.stop();
-      }, 5000); // 5s of silence → stop
+      }, 5000);
 
       let finalTranscript = "";
       let interimTranscript = "";
@@ -70,7 +70,7 @@ export function useVoiceRecognition() {
       }));
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: any) => {
       let errorMsg = "Erro no reconhecimento de voz";
       if (event.error === "no-speech") {
         errorMsg = "Nenhuma fala detectada. Tente falar mais perto do microfone.";
