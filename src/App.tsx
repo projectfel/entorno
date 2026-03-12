@@ -20,6 +20,7 @@ import Cadastro from "./pages/Cadastro";
 import EsqueciSenha from "./pages/EsqueciSenha";
 import ResetPassword from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
+import CompraVoz from "./pages/CompraVoz";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/termos" element={<TermosDeUso />} />
                 <Route path="/privacidade" element={<TermosDeUso />} />
+                <Route path="/compra-voz" element={<CompraVoz />} />
 
                 <Route path="/meus-pedidos" element={<ProtectedRoute><MeusPedidos /></ProtectedRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute requiredRole="moderator"><Dashboard /></ProtectedRoute>} />

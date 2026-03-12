@@ -1,4 +1,4 @@
-import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,6 +35,13 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link
+            to="/compra-voz"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            title="Compra por Voz"
+          >
+            <Mic className="h-5 w-5" />
+          </Link>
           {!loading && (
             user ? (
               <DropdownMenu>
