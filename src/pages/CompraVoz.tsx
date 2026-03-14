@@ -1,15 +1,16 @@
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { useStores } from "@/hooks/useStores";
 import { isStoreOpen } from "@/lib/storeStatus";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
   Mic, MicOff, ArrowLeft, Loader2, Pencil, Trash2, Plus,
   ShoppingCart, TrendingDown, Store, AlertCircle, ChevronDown, ChevronUp,
-  BarChart3, ShoppingBag,
+  BarChart3, ShoppingBag, Sparkles, Volume2, Keyboard,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -49,11 +50,13 @@ interface BestCart {
 }
 
 type ViewMode = "per-item" | "best-cart";
+type InputMode = "voice" | "text";
 
 const CompraVoz = () => {
   const voice = useVoiceRecognition();
   const { data: stores } = useStores();
   const { addItem } = useCart();
+  const { user, loading: authLoading } = useAuth();
 
   const [parsedItems, setParsedItems] = useState<ParsedItem[]>([]);
   const [parsing, setParsing] = useState(false);
@@ -65,6 +68,7 @@ const CompraVoz = () => {
   const [editValue, setEditValue] = useState("");
   const [manualInput, setManualInput] = useState("");
   const [expandedItem, setExpandedItem] = useState<number | null>(null);
+  const [inputMode, setInputMode] = useState<InputMode>("voice");
 
   const parseTranscript = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -96,15 +100,16 @@ const CompraVoz = () => {
     }
   }, []);
 
-  const handleVoiceStop = useCallback(() => {
-    voice.stop();
-    // Wait a moment for final transcript
-    setTimeout(() => {
-      const transcript = voice.transcript;
-      if (transcript) {
-        parseTranscript(transcript);
-      }
-    }, 500);
+  const handleVoiceToggle = useCallback(() => {
+    if (voice.isListening) {
+      voice.stop();
+    } else {
+      voice.start((finalTranscript) => {
+        if (finalTranscript) {
+          parseTranscript(finalTranscript);
+        }
+      });
+    }
   }, [voice, parseTranscript]);
 
   const removeItem = (idx: number) => {
@@ -128,6 +133,18 @@ const CompraVoz = () => {
     setBestCarts(null);
   };
 
+  const updateQuantity = (idx: number, delta: number) => {
+    setParsedItems((prev) =>
+      prev.map((item, i) => {
+        if (i !== idx) return item;
+        const newQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      })
+    );
+    setComparison(null);
+    setBestCarts(null);
+  };
+
   const addManualItem = () => {
     if (!manualInput.trim()) return;
     setParsedItems((prev) => [
@@ -144,7 +161,6 @@ const CompraVoz = () => {
     setComparing(true);
 
     try {
-      // Fetch all products from all stores
       const { data: allProducts, error } = await supabase
         .from("products")
         .select("id, name, price, unit, store_id, in_stock")
@@ -154,14 +170,13 @@ const CompraVoz = () => {
 
       const storeMap = new Map(stores.map((s) => [s.id, s]));
 
-      // Per-item comparison
       const results: ComparisonResult[] = parsedItems.map((item) => {
-        const searchTerms = item.name.toLowerCase().split(" ");
+        const searchTerms = item.name.toLowerCase().split(" ").filter((t) => t.length >= 2);
 
         const matches: StoreMatch[] = (allProducts || [])
           .filter((p) => {
             const pName = p.name.toLowerCase();
-            return searchTerms.some((term) => term.length >= 3 && pName.includes(term));
+            return searchTerms.some((term) => pName.includes(term));
           })
           .map((p) => {
             const store = storeMap.get(p.store_id);
@@ -188,7 +203,6 @@ const CompraVoz = () => {
 
       setComparison(results);
 
-      // Best cart calculation: for each store, compute total if buying everything there
       const carts: BestCart[] = stores
         .filter((s) => isStoreOpen(s) || s.status !== "maintenance")
         .map((store) => {
@@ -197,11 +211,11 @@ const CompraVoz = () => {
           const missingItems: string[] = [];
 
           parsedItems.forEach((item) => {
-            const searchTerms = item.name.toLowerCase().split(" ");
+            const searchTerms = item.name.toLowerCase().split(" ").filter((t) => t.length >= 2);
             const match = storeProducts
               .filter((p) => {
                 const pName = p.name.toLowerCase();
-                return searchTerms.some((term) => term.length >= 3 && pName.includes(term));
+                return searchTerms.some((term) => pName.includes(term));
               })
               .sort((a, b) => Number(a.price) - Number(b.price))[0];
 
@@ -228,7 +242,6 @@ const CompraVoz = () => {
         })
         .filter((c) => c.items.length > 0)
         .sort((a, b) => {
-          // Prioritize carts with fewer missing items, then by total
           if (a.missingItems.length !== b.missingItems.length) {
             return a.missingItems.length - b.missingItems.length;
           }
@@ -276,58 +289,121 @@ const CompraVoz = () => {
     toast.success(`${match.productName} adicionado!`);
   };
 
+  const clearAll = () => {
+    voice.reset();
+    setParsedItems([]);
+    setComparison(null);
+    setBestCarts(null);
+    setManualInput("");
+  };
+
   const savings = bestCarts && bestCarts.length >= 2
     ? bestCarts[bestCarts.length - 1].total - bestCarts[0].total
     : null;
 
+  if (authLoading) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: { pathname: "/compra-voz" } }} replace />;
+  }
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6 pb-20">
-      <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+    <main className="mx-auto max-w-2xl px-4 py-6 pb-24">
+      <Link to="/" className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" />
-        Voltar ao marketplace
+        Voltar
       </Link>
 
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">🎤 Compra por Voz</h1>
-        <p className="text-muted-foreground mt-1">
-          Fale sua lista de compras e compare preços entre os mercados do bairro
+      {/* Hero header */}
+      <div className="mb-6 text-center">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+          <Sparkles className="h-8 w-8 text-primary" />
+        </div>
+        <h1 className="text-2xl font-bold text-foreground">Lista Inteligente</h1>
+        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+          Fale ou digite sua lista e descubra onde comprar mais barato no bairro
         </p>
       </div>
 
-      {/* Voice input section */}
-      <section className="mb-8 rounded-2xl border bg-card p-6">
-        <div className="flex flex-col items-center gap-4">
+      {/* Input mode toggle */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setInputMode("voice")}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all ${
+            inputMode === "voice"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "bg-card text-card-foreground border hover:bg-secondary"
+          }`}
+        >
+          <Volume2 className="h-4 w-4" />
+          Por voz
+        </button>
+        <button
+          onClick={() => setInputMode("text")}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all ${
+            inputMode === "text"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "bg-card text-card-foreground border hover:bg-secondary"
+          }`}
+        >
+          <Keyboard className="h-4 w-4" />
+          Digitar
+        </button>
+      </div>
+
+      {/* Voice input */}
+      {inputMode === "voice" && (
+        <section className="mb-6 rounded-2xl border bg-card p-6">
           {!voice.isSupported ? (
-            <div className="text-center text-muted-foreground">
+            <div className="text-center text-muted-foreground py-4">
               <AlertCircle className="mx-auto h-10 w-10 mb-2 text-destructive" />
-              <p className="font-medium">Navegador não suportado</p>
-              <p className="text-sm mt-1">Use o Chrome ou Edge para compra por voz</p>
+              <p className="font-medium">Navegador não suporta voz</p>
+              <p className="text-sm mt-1">Use Chrome ou Edge, ou mude para o modo "Digitar"</p>
             </div>
           ) : (
-            <>
-              <button
-                onClick={voice.isListening ? handleVoiceStop : voice.start}
-                className={`flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 ${
-                  voice.isListening
-                    ? "bg-destructive text-destructive-foreground animate-pulse shadow-lg shadow-destructive/30 scale-110"
-                    : "bg-primary text-primary-foreground hover:shadow-lg hover:scale-105 active:scale-95"
-                }`}
-              >
-                {voice.isListening ? <MicOff className="h-8 w-8" /> : <Mic className="h-8 w-8" />}
-              </button>
+            <div className="flex flex-col items-center gap-4">
+              {/* Mic button with pulse animation */}
+              <div className="relative">
+                {voice.isListening && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-destructive/20 animate-ping" />
+                    <div className="absolute -inset-2 rounded-full bg-destructive/10 animate-pulse" />
+                  </>
+                )}
+                <button
+                  onClick={handleVoiceToggle}
+                  className={`relative flex h-24 w-24 items-center justify-center rounded-full transition-all duration-300 ${
+                    voice.isListening
+                      ? "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/30 scale-110"
+                      : "bg-primary text-primary-foreground hover:shadow-xl hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
+                  }`}
+                >
+                  {voice.isListening ? <MicOff className="h-10 w-10" /> : <Mic className="h-10 w-10" />}
+                </button>
+              </div>
 
-              <p className="text-sm text-muted-foreground text-center">
-                {voice.isListening
-                  ? "Ouvindo... Fale sua lista e clique para parar"
-                  : "Clique no microfone e diga sua lista de compras"}
-              </p>
+              <div className="text-center">
+                <p className="text-sm font-medium text-foreground">
+                  {voice.isListening ? "🔴 Ouvindo... Toque para parar" : "Toque para falar sua lista"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {voice.isListening
+                    ? 'Ex: "2 leites, 1 arroz, 3 feijão"'
+                    : "Diga os itens e a quantidade naturalmente"}
+                </p>
+              </div>
 
               {/* Live transcript */}
               {(voice.transcript || voice.interimTranscript) && (
-                <div className="w-full rounded-xl bg-secondary p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">Transcrição:</p>
-                  <p className="text-foreground">
+                <div className="w-full rounded-xl bg-secondary/70 p-4 border border-border/50">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Transcrição</p>
+                  <p className="text-foreground leading-relaxed">
                     {voice.transcript}
                     {voice.interimTranscript && (
                       <span className="text-muted-foreground italic"> {voice.interimTranscript}</span>
@@ -337,48 +413,48 @@ const CompraVoz = () => {
               )}
 
               {voice.error && (
-                <div className="w-full rounded-xl bg-destructive/10 p-3 text-sm text-destructive flex items-start gap-2">
+                <div className="w-full rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                   {voice.error}
                 </div>
               )}
-            </>
-          )}
-
-          {/* Manual text input fallback */}
-          <div className="w-full border-t pt-4 mt-2">
-            <p className="text-xs font-medium text-muted-foreground mb-2">Ou digite sua lista:</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={manualInput}
-                onChange={(e) => setManualInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    // Parse the typed text with AI
-                    if (manualInput.trim()) parseTranscript(manualInput);
-                  }
-                }}
-                placeholder="Ex: 2 leites, 1 arroz, 3 feijão..."
-                className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-              <button
-                onClick={() => {
-                  if (manualInput.trim()) parseTranscript(manualInput);
-                }}
-                disabled={parsing || !manualInput.trim()}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
-              >
-                {parsing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Interpretar"}
-              </button>
             </div>
+          )}
+        </section>
+      )}
+
+      {/* Text input */}
+      {inputMode === "text" && (
+        <section className="mb-6 rounded-2xl border bg-card p-6">
+          <p className="text-sm font-medium text-foreground mb-2">Digite sua lista de compras</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Escreva naturalmente, ex: "2 leites, 1 arroz, 3 feijão, café"
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && manualInput.trim()) parseTranscript(manualInput);
+              }}
+              placeholder="2 leites, 1 arroz, 3 feijão..."
+              className="flex-1 rounded-xl border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+            <button
+              onClick={() => { if (manualInput.trim()) parseTranscript(manualInput); }}
+              disabled={parsing || !manualInput.trim()}
+              className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
+            >
+              {parsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Parsing indicator */}
       {parsing && (
-        <div className="mb-6 flex items-center justify-center gap-3 rounded-xl bg-primary/5 p-4">
+        <div className="mb-6 flex items-center justify-center gap-3 rounded-2xl bg-primary/5 border border-primary/10 p-5">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
           <span className="text-sm font-medium text-foreground">Interpretando sua lista com IA...</span>
         </div>
@@ -386,19 +462,19 @@ const CompraVoz = () => {
 
       {/* Parsed items list */}
       {parsedItems.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground">
-              Lista de Compras ({parsedItems.length} {parsedItems.length === 1 ? "item" : "itens"})
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-bold text-foreground">
+              🛒 Sua Lista ({parsedItems.length} {parsedItems.length === 1 ? "item" : "itens"})
             </h2>
-            <button onClick={voice.reset} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Limpar tudo
+            <button onClick={clearAll} className="text-xs text-destructive hover:underline transition-colors">
+              Limpar
             </button>
           </div>
 
           <div className="space-y-2">
             {parsedItems.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 rounded-xl border bg-card p-3 transition-colors hover:bg-secondary/50">
+              <div key={idx} className="flex items-center gap-2 rounded-xl border bg-card p-3 transition-colors hover:bg-secondary/30">
                 {editingIdx === idx ? (
                   <div className="flex-1 flex gap-2">
                     <input
@@ -409,28 +485,41 @@ const CompraVoz = () => {
                       autoFocus
                       className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
-                    <button onClick={saveEdit} className="text-xs text-primary font-medium">Salvar</button>
+                    <button onClick={saveEdit} className="text-xs text-primary font-semibold px-2">Salvar</button>
                   </div>
                 ) : (
                   <>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-card-foreground">{item.name}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-card-foreground text-sm">{item.name}</span>
                         {!item.confidence && (
-                          <Badge variant="outline" className="text-[10px] text-accent border-accent/30">
+                          <Badge variant="outline" className="text-[10px] text-accent border-accent/30 py-0">
                             Verificar
                           </Badge>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        Qtd: {item.quantity}{item.unit ? ` ${item.unit}` : ""}
-                      </span>
+                    </div>
+                    {/* Quantity controls */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => updateQuantity(idx, -1)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <span className="text-sm font-bold">−</span>
+                      </button>
+                      <span className="w-6 text-center text-sm font-bold text-foreground">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(idx, 1)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
                     </div>
                     <button onClick={() => startEdit(idx)} className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-3 w-3" />
                     </button>
                     <button onClick={() => removeItem(idx)} className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-3 w-3" />
                     </button>
                   </>
                 )}
@@ -438,11 +527,11 @@ const CompraVoz = () => {
             ))}
           </div>
 
-          {/* Add more items */}
-          <div className="mt-3 flex gap-2">
+          {/* Add more items inline */}
+          <div className="mt-2 flex gap-2">
             <input
               type="text"
-              value={manualInput}
+              value={inputMode === "text" ? "" : manualInput}
               onChange={(e) => setManualInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addManualItem()}
               placeholder="Adicionar item..."
@@ -457,7 +546,7 @@ const CompraVoz = () => {
           <button
             onClick={comparePrices}
             disabled={comparing || parsedItems.length === 0}
-            className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="mt-4 w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
           >
             {comparing ? (
               <>
@@ -467,7 +556,7 @@ const CompraVoz = () => {
             ) : (
               <>
                 <BarChart3 className="h-5 w-5" />
-                Comparar Preços
+                Comparar Preços nos Mercados
               </>
             )}
           </button>
@@ -478,7 +567,7 @@ const CompraVoz = () => {
       {(comparison || bestCarts) && (
         <section className="mb-8">
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-bold text-foreground">Resultado da Comparação</h2>
+            <h2 className="text-base font-bold text-foreground">📊 Resultado da Comparação</h2>
           </div>
 
           {/* View mode toggle */}
@@ -503,19 +592,21 @@ const CompraVoz = () => {
               }`}
             >
               <TrendingDown className="h-4 w-4" />
-              Melhor por Item
+              Por Item
             </button>
           </div>
 
           {/* Best Cart View */}
           {viewMode === "best-cart" && bestCarts && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {savings && savings > 0 && (
-                <div className="rounded-xl bg-[hsl(var(--success))]/10 border border-[hsl(var(--success))]/20 p-4 flex items-center gap-3">
-                  <TrendingDown className="h-6 w-6 text-[hsl(var(--success))]" />
+                <div className="rounded-2xl bg-[hsl(var(--success))]/10 border border-[hsl(var(--success))]/20 p-4 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--success))]/20">
+                    <TrendingDown className="h-5 w-5 text-[hsl(var(--success))]" />
+                  </div>
                   <div>
                     <p className="text-sm font-bold text-foreground">
-                      Você economiza até R$ {savings.toFixed(2).replace(".", ",")}
+                      Economia de até R$ {savings.toFixed(2).replace(".", ",")}
                     </p>
                     <p className="text-xs text-muted-foreground">Comprando no mercado mais barato</p>
                   </div>
@@ -523,31 +614,31 @@ const CompraVoz = () => {
               )}
 
               {bestCarts.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground">
+                <div className="py-12 text-center text-muted-foreground rounded-2xl border bg-card">
                   <Store className="mx-auto h-10 w-10 mb-3 opacity-40" />
                   <p className="font-medium">Nenhuma loja encontrada com esses produtos</p>
-                  <p className="text-sm mt-1">Tente editar os nomes dos itens</p>
+                  <p className="text-sm mt-1">Tente editar os nomes dos itens para termos mais genéricos</p>
                 </div>
               ) : (
                 bestCarts.map((cart, idx) => (
-                  <div key={cart.storeId} className={`rounded-2xl border bg-card p-5 transition-all ${idx === 0 ? "ring-2 ring-primary/30 shadow-md" : ""}`}>
+                  <div key={cart.storeId} className={`rounded-2xl border bg-card p-4 transition-all ${idx === 0 ? "ring-2 ring-primary/30 shadow-md" : ""}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
                         {idx === 0 && (
-                          <Badge className="bg-primary text-primary-foreground border-0 text-[10px]">🏆 Melhor opção</Badge>
+                          <Badge className="bg-primary text-primary-foreground border-0 text-[10px]">🏆 Melhor</Badge>
                         )}
-                        <h3 className="font-bold text-card-foreground">{cart.storeName}</h3>
+                        <h3 className="font-bold text-card-foreground text-sm">{cart.storeName}</h3>
                       </div>
-                      <span className="text-xl font-bold text-primary">
+                      <span className="text-lg font-bold text-primary">
                         R$ {cart.total.toFixed(2).replace(".", ",")}
                       </span>
                     </div>
 
-                    <div className="space-y-1.5 mb-3">
+                    <div className="space-y-1 mb-3">
                       {cart.items.map((ci) => (
                         <div key={ci.productId} className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            {ci.name} x{ci.quantity}
+                            {ci.name} ×{ci.quantity}
                           </span>
                           <span className="text-card-foreground font-medium">
                             R$ {(ci.price * ci.quantity).toFixed(2).replace(".", ",")}
@@ -569,7 +660,7 @@ const CompraVoz = () => {
                       className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary/10 text-primary py-2.5 text-sm font-semibold hover:bg-primary/20 transition-colors"
                     >
                       <ShoppingCart className="h-4 w-4" />
-                      Adicionar tudo ao carrinho
+                      Adicionar ao carrinho
                     </button>
                   </div>
                 ))
@@ -579,19 +670,19 @@ const CompraVoz = () => {
 
           {/* Per-item View */}
           {viewMode === "per-item" && comparison && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {comparison.map((result, idx) => (
                 <div key={idx} className="rounded-xl border bg-card overflow-hidden">
                   <button
                     onClick={() => setExpandedItem(expandedItem === idx ? null : idx)}
-                    className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary/50 transition-colors"
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-secondary/50 transition-colors"
                   >
                     <div>
-                      <span className="font-medium text-card-foreground">
-                        {result.itemName} <span className="text-muted-foreground font-normal">x{result.quantity}</span>
+                      <span className="font-medium text-card-foreground text-sm">
+                        {result.itemName} <span className="text-muted-foreground font-normal">×{result.quantity}</span>
                       </span>
                       {result.notFound ? (
-                        <p className="text-xs text-destructive mt-0.5">Não encontrado em nenhuma loja</p>
+                        <p className="text-xs text-destructive mt-0.5">Não encontrado</p>
                       ) : (
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {result.matches.length} {result.matches.length === 1 ? "loja" : "lojas"} • Menor: R$ {result.bestPrice!.toFixed(2).replace(".", ",")}
@@ -604,7 +695,7 @@ const CompraVoz = () => {
                   </button>
 
                   {expandedItem === idx && result.matches.length > 0 && (
-                    <div className="border-t px-4 py-2 space-y-2">
+                    <div className="border-t px-3 py-2 space-y-2">
                       {result.matches.map((match, mIdx) => (
                         <div key={mIdx} className="flex items-center justify-between py-1.5">
                           <div>
@@ -633,29 +724,26 @@ const CompraVoz = () => {
         </section>
       )}
 
-      {/* Empty state */}
+      {/* Empty state - How it works */}
       {parsedItems.length === 0 && !parsing && (
-        <section className="rounded-2xl border bg-card p-8 text-center text-muted-foreground">
-          <ShoppingCart className="mx-auto h-12 w-12 mb-4 opacity-30" />
-          <p className="text-lg font-medium text-foreground">Como funciona?</p>
-          <ol className="mt-4 space-y-3 text-sm text-left max-w-sm mx-auto">
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
-              <span>Fale ou digite sua lista de compras</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
-              <span>A IA interpreta e organiza os itens</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">3</span>
-              <span>Compare preços entre todos os mercados</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">4</span>
-              <span>Escolha o melhor e finalize via WhatsApp</span>
-            </li>
-          </ol>
+        <section className="rounded-2xl border bg-card p-6 text-center">
+          <div className="mb-4">
+            <ShoppingCart className="mx-auto h-10 w-10 text-primary/30" />
+          </div>
+          <p className="text-base font-bold text-foreground mb-4">Como funciona?</p>
+          <div className="space-y-3 text-left max-w-xs mx-auto">
+            {[
+              { step: "1", icon: "🎤", text: "Fale ou digite sua lista de compras" },
+              { step: "2", icon: "🤖", text: "A IA organiza os itens automaticamente" },
+              { step: "3", icon: "📊", text: "Compare preços entre os mercados" },
+              { step: "4", icon: "🛒", text: "Adicione ao carrinho e finalize" },
+            ].map(({ step, icon, text }) => (
+              <div key={step} className="flex items-center gap-3">
+                <span className="text-xl">{icon}</span>
+                <span className="text-sm text-muted-foreground">{text}</span>
+              </div>
+            ))}
+          </div>
         </section>
       )}
     </main>

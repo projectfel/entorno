@@ -3,17 +3,14 @@ import { useStores } from "@/hooks/useStores";
 import { useFeaturedProducts } from "@/hooks/useProducts";
 import { isStoreOpen } from "@/lib/storeStatus";
 import HeroSection from "@/components/HeroSection";
-import CategoryBar from "@/components/CategoryBar";
 import StoreCard from "@/components/StoreCard";
 import FeaturedDeals from "@/components/FeaturedDeals";
-import LoyaltyBanner from "@/components/LoyaltyBanner";
 import GlobalSearch from "@/components/GlobalSearch";
 import { StoreCardSkeleton } from "@/components/StoreSkeleton";
 import { Store, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const [busca, setBusca] = useState("");
-  const [categoriaAtiva, setCategoriaAtiva] = useState<string | null>(null);
   const { data: stores, isLoading } = useStores();
   const { data: featuredProducts } = useFeaturedProducts();
 
@@ -37,9 +34,7 @@ const Index = () => {
         <GlobalSearch busca={busca} onBuscaChange={setBusca} />
       </div>
 
-      <CategoryBar categoriaAtiva={categoriaAtiva} onCategoriaChange={setCategoriaAtiva} />
       <FeaturedDeals />
-      <LoyaltyBanner />
 
       {/* Featured products */}
       {featuredProducts && featuredProducts.length > 0 && (
@@ -118,7 +113,7 @@ const Index = () => {
               <div className="py-20 text-center text-muted-foreground">
                 <div className="text-5xl mb-4">🔍</div>
                 <p className="text-lg font-medium">Nenhum mercado encontrado</p>
-                <p className="text-sm mt-1">Tente buscar por outro nome ou categoria</p>
+                <p className="text-sm mt-1">Tente buscar por outro nome</p>
               </div>
             )}
           </>

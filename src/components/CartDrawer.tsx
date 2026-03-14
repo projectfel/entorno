@@ -1,14 +1,16 @@
-import { X, Minus, Plus, MessageCircle, Trash2 } from "lucide-react";
+import { X, Minus, Plus, MessageCircle, Trash2, Copy, Check } from "lucide-react";
+import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { toast } from "sonner";
 
 const CartDrawer = () => {
   const { items, total, isOpen, setIsOpen, updateQuantity, removeItem, clearCart } = useCart();
+  const [copied, setCopied] = useState(false);
 
-  const finalizarPedido = () => {
-    if (items.length === 0) return;
+  const buildMessage = () => {
+    if (items.length === 0) return "";
 
-    // Group items by market
     const byMarket = items.reduce((acc, item) => {
       if (!acc[item.marketId]) {
         acc[item.marketId] = { nome: item.marketNome, whatsapp: item.marketWhatsapp, items: [] };
@@ -17,19 +19,53 @@ const CartDrawer = () => {
       return acc;
     }, {} as Record<string, { nome: string; whatsapp: string; items: typeof items }>);
 
-    // Send to first market's WhatsApp (simplified for prototype)
     const firstMarket = Object.values(byMarket)[0];
     const itens = firstMarket.items
       .map((p) => `• ${p.nome} x${p.quantidade} (R$ ${(p.preco * p.quantidade).toFixed(2).replace(".", ",")})`)
       .join("\n");
     const totalStr = total.toFixed(2).replace(".", ",");
 
-    const msg = `Olá ${firstMarket.nome}! 🛒\n\nGostaria de fazer este pedido:\n\n${itens}\n\n💰 Total: R$ ${totalStr}\n\n📍 Endereço: [Digite seu endereço]\n\nObrigado!`;
+    return `Olá ${firstMarket.nome}! 🛒\n\nGostaria de fazer este pedido:\n\n${itens}\n\n💰 Total: R$ ${totalStr}\n\n📍 Endereço: [Digite seu endereço]\n\nObrigado!`;
+  };
 
-    window.open(
-      `https://wa.me/${firstMarket.whatsapp}?text=${encodeURIComponent(msg)}`,
-      "_blank"
-    );
+  const getWhatsappNumber = () => {
+    if (items.length === 0) return "";
+    return items[0].marketWhatsapp;
+  };
+
+  const finalizarPedido = () => {
+    if (items.length === 0) return;
+
+    const msg = buildMessage();
+    const whatsapp = getWhatsappNumber();
+    const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`;
+
+    // Try to open WhatsApp - may be blocked in iframe/preview
+    const newWindow = window.open(url, "_blank");
+
+    if (!newWindow || newWindow.closed) {
+      // Fallback: copy message and show instructions
+      navigator.clipboard.writeText(msg).then(() => {
+        toast.success("Mensagem copiada! Cole no WhatsApp do mercado.", {
+          description: `WhatsApp: ${whatsapp}`,
+          duration: 8000,
+        });
+      }).catch(() => {
+        toast.info(`Envie a mensagem para o WhatsApp: ${whatsapp}`, { duration: 8000 });
+      });
+    }
+  };
+
+  const copyMessage = async () => {
+    const msg = buildMessage();
+    try {
+      await navigator.clipboard.writeText(msg);
+      setCopied(true);
+      toast.success("Mensagem copiada!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar");
+    }
   };
 
   return (
@@ -98,6 +134,13 @@ const CartDrawer = () => {
               >
                 <MessageCircle className="h-5 w-5" />
                 Finalizar via WhatsApp
+              </button>
+              <button
+                onClick={copyMessage}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              >
+                {copied ? <Check className="h-4 w-4 text-[hsl(var(--success))]" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copiado!" : "Copiar mensagem"}
               </button>
               <button
                 onClick={clearCart}
