@@ -6,11 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   ArrowLeft, Store, Users, ShoppingBag, Plus, X, Search,
-  Shield, ShieldCheck, User as UserIcon, Eye, EyeOff,
+  Shield, ShieldCheck, User as UserIcon, Eye, EyeOff, UserCheck,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { z } from "zod";
 
-interface Stats { totalStores: number; totalClients: number; totalOrders: number; }
+const createStoreSchema = z.object({
+  email: z.string().trim().email("E-mail inválido"),
+  password: z.string().min(6, "Senha mínima: 6 caracteres"),
+  storeName: z.string().trim().min(2, "Nome do mercado obrigatório"),
+  whatsapp: z.string().trim().min(8, "WhatsApp inválido").regex(/^[\d+\s()-]+$/, "WhatsApp: apenas números"),
+});
+
+interface Stats { totalStores: number; totalClients: number; totalOrders: number; totalUsers: number; }
 
 const Admin = () => {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -23,6 +31,7 @@ const Admin = () => {
   const [searchStores, setSearchStores] = useState("");
   const [searchUsers, setSearchUsers] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState({
     email: "", password: "", displayName: "", storeName: "", whatsapp: "", address: "", neighborhood: "Lagoa Azul",
@@ -51,12 +60,14 @@ const Admin = () => {
   useEffect(() => { loadData(); }, []);
 
   const handleCreate = async () => {
-    if (!form.email || !form.password || !form.storeName || !form.whatsapp) {
-      toast.error("Preencha todos os campos obrigatórios");
-      return;
-    }
-    if (form.password.length < 6) {
-      toast.error("Senha deve ter no mínimo 6 caracteres");
+    setFormErrors({});
+    const result = createStoreSchema.safeParse(form);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach((e) => {
+        if (e.path[0]) errs[e.path[0] as string] = e.message;
+      });
+      setFormErrors(errs);
       return;
     }
     setCreating(true);
@@ -69,7 +80,7 @@ const Admin = () => {
       loadData();
     } catch (err: any) {
       const msg = err?.message || "Erro ao criar mercado";
-      if (msg.includes("already been registered")) {
+      if (msg.includes("already been registered") || msg.includes("already registered")) {
         toast.error("Este e-mail já está cadastrado. Use outro e-mail.", { id: toastId });
       } else {
         toast.error(msg, { id: toastId });
@@ -137,8 +148,8 @@ const Admin = () => {
     return (
       <main className="mx-auto max-w-5xl px-4 py-6">
         <Skeleton className="h-8 w-48 mb-6" />
-        <div className="grid gap-4 sm:grid-cols-3 mb-8">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+        <div className="grid gap-4 sm:grid-cols-4 mb-8">
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
         </div>
         <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
@@ -166,7 +177,7 @@ const Admin = () => {
       </div>
 
       {/* Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-4">
         <div className="rounded-xl border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -182,6 +193,17 @@ const Admin = () => {
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
               <Users className="h-5 w-5 text-accent" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{stats?.totalUsers ?? 0}</p>
+              <p className="text-sm text-muted-foreground">Usuários</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <UserCheck className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">{stats?.totalClients ?? 0}</p>
@@ -310,7 +332,7 @@ const Admin = () => {
           ) : (
             <div className="space-y-2">
               {orders.map((o) => {
-                const items = Array.isArray(o.items) ? o.items : [];
+                const orderItems = Array.isArray(o.items) ? o.items : [];
                 return (
                   <div key={o.id} className="rounded-xl border bg-card p-4">
                     <div className="flex items-start justify-between">
@@ -319,7 +341,7 @@ const Admin = () => {
                           {new Date(o.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </p>
                         <p className="font-medium text-card-foreground mt-1">{(o as any).stores?.name || "Loja"}</p>
-                        <p className="text-sm text-muted-foreground">{items.length} {items.length === 1 ? "item" : "itens"}</p>
+                        <p className="text-sm text-muted-foreground">{orderItems.length} {orderItems.length === 1 ? "item" : "itens"}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-primary">R$ {Number(o.total).toFixed(2).replace(".", ",")}</p>
@@ -347,7 +369,7 @@ const Admin = () => {
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-card border p-6 animate-scale-in">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-card-foreground">Cadastrar Novo Mercado</h2>
-              <button onClick={() => setShowCreate(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+              <button onClick={() => { setShowCreate(false); setFormErrors({}); }} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
             </div>
 
             <p className="text-sm text-muted-foreground mb-4">Isso criará um novo usuário lojista e vinculará o mercado automaticamente.</p>
@@ -357,39 +379,38 @@ const Admin = () => {
                 <label className="text-xs font-medium text-muted-foreground">Nome do Mercado *</label>
                 <input type="text" value={form.storeName} onChange={(e) => setForm((f) => ({ ...f, storeName: e.target.value }))}
                   className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Ex: Mercadinho do João" />
+                {formErrors.storeName && <p className="mt-1 text-xs text-destructive">{formErrors.storeName}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">E-mail do lojista *</label>
                   <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="lojista@email.com" />
+                  {formErrors.email && <p className="mt-1 text-xs text-destructive">{formErrors.email}</p>}
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Senha *</label>
                   <div className="relative mt-1">
                     <input type={showPassword ? "text" : "password"} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                       className="w-full rounded-lg border bg-background px-3 py-2 pr-9 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Mínimo 6 caracteres" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </button>
                   </div>
+                  {formErrors.password && <p className="mt-1 text-xs text-destructive">{formErrors.password}</p>}
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Nome do responsável</label>
+                <label className="text-xs font-medium text-muted-foreground">Nome do lojista</label>
                 <input type="text" value={form.displayName} onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
-                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="João Silva" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">WhatsApp *</label>
-                <input type="text" value={form.whatsapp} onChange={(e) => setForm((f) => ({ ...f, whatsapp: e.target.value }))}
-                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="(84) 99999-9999" />
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Nome completo" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Endereço</label>
-                  <input type="text" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Rua..." />
+                  <label className="text-xs font-medium text-muted-foreground">WhatsApp *</label>
+                  <input type="text" value={form.whatsapp} onChange={(e) => setForm((f) => ({ ...f, whatsapp: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="5584999999999" />
+                  {formErrors.whatsapp && <p className="mt-1 text-xs text-destructive">{formErrors.whatsapp}</p>}
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Bairro</label>
@@ -397,15 +418,21 @@ const Admin = () => {
                     className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
               </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Endereço</label>
+                <input type="text" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Rua, número" />
+              </div>
             </div>
 
-            <button
-              onClick={handleCreate}
-              disabled={creating || !form.email || !form.password || !form.storeName || !form.whatsapp}
-              className="mt-4 w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {creating ? "Criando..." : "Criar Mercado e Lojista"}
-            </button>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => { setShowCreate(false); setFormErrors({}); }} className="flex-1 rounded-lg border py-2.5 text-sm text-muted-foreground hover:bg-secondary transition-colors">
+                Cancelar
+              </button>
+              <button onClick={handleCreate} disabled={creating} className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity">
+                {creating ? "Criando..." : "Criar Mercado"}
+              </button>
+            </div>
           </div>
         </div>
       )}

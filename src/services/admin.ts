@@ -68,22 +68,36 @@ export const adminService = {
   },
 
   async getStats() {
-    // Count all stores
-    const storesRes = await supabase.from("stores").select("id", { count: "exact", head: true });
+    // Count all stores (active + inactive)
+    const { data: allStores, error: storesErr } = await supabase
+      .from("stores")
+      .select("id");
+    if (storesErr) throw storesErr;
 
-    // Count only clients (role = 'user')
-    const clientsRes = await supabase
+    // Count clients: profiles whose user_id has role='user' in user_roles
+    const { data: clientRoles, error: clientsErr } = await supabase
       .from("user_roles")
-      .select("id", { count: "exact", head: true })
+      .select("id")
       .eq("role", "user");
+    if (clientsErr) throw clientsErr;
 
     // Count all orders
-    const ordersRes = await supabase.from("orders").select("id", { count: "exact", head: true });
+    const { data: allOrders, error: ordersErr } = await supabase
+      .from("orders")
+      .select("id");
+    if (ordersErr) throw ordersErr;
+
+    // Count total registered users (all profiles)
+    const { data: allProfiles, error: profilesErr } = await supabase
+      .from("profiles")
+      .select("id");
+    if (profilesErr) throw profilesErr;
 
     return {
-      totalStores: storesRes.count ?? 0,
-      totalClients: clientsRes.count ?? 0,
-      totalOrders: ordersRes.count ?? 0,
+      totalStores: allStores?.length ?? 0,
+      totalClients: clientRoles?.length ?? 0,
+      totalOrders: allOrders?.length ?? 0,
+      totalUsers: allProfiles?.length ?? 0,
     };
   },
 };

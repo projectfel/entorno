@@ -11,9 +11,19 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript } = await req.json();
-    if (!transcript || typeof transcript !== "string") {
-      return new Response(JSON.stringify({ error: "transcript is required" }), {
+    const body = await req.json();
+    const transcript = typeof body?.transcript === "string" ? body.transcript.trim() : "";
+    
+    if (!transcript || transcript.length < 2) {
+      return new Response(JSON.stringify({ error: "transcript is required and must be at least 2 characters" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Limit input length to prevent abuse
+    if (transcript.length > 1000) {
+      return new Response(JSON.stringify({ error: "Texto muito longo. Máximo 1000 caracteres." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -38,30 +48,28 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Você é um parser de lista de compras. O usuário vai falar uma lista de produtos de supermercado em português brasileiro.
+            content: `Você é um parser de lista de compras de supermercado brasileiro.
 Extraia cada item com:
-- name: nome normalizado do produto (sem quantidade, sem marca específica, ex: "leite integral", "arroz branco", "feijão carioca")
-- quantity: número inteiro (padrão 1 se não especificado)
-- unit: unidade se mencionada (kg, L, un, etc), caso contrário null
-- original: texto original que o usuário falou para esse item
+- name: nome normalizado (sem quantidade, sem marca, ex: "leite integral", "arroz branco")
+- quantity: número inteiro (padrão 1)
+- unit: unidade se mencionada (kg, L, un), senão null
+- original: texto original do item
+- confidence: true se entendeu bem, false se duvidoso
 
 Regras:
-- Normalize nomes: "leites" → "leite", "2 arroz" → quantity=2, name="arroz"
-- Se o usuário disser "se tiver barato" ou condições, ignore a condição e extraia o produto
-- Se não entender um item, inclua com name sendo o texto original e confidence=false
-- Responda APENAS com o JSON, sem markdown, sem explicação`
+- Normalize plurais: "leites" → "leite"
+- "2 arroz" → quantity=2, name="arroz"
+- Ignore condições como "se tiver barato"
+- Responda APENAS JSON, sem markdown`
           },
-          {
-            role: "user",
-            content: transcript
-          }
+          { role: "user", content: transcript }
         ],
         tools: [
           {
             type: "function",
             function: {
               name: "parse_shopping_list",
-              description: "Parse a spoken shopping list into structured items",
+              description: "Parse spoken shopping list into structured items",
               parameters: {
                 type: "object",
                 properties: {
@@ -70,11 +78,11 @@ Regras:
                     items: {
                       type: "object",
                       properties: {
-                        name: { type: "string", description: "Normalized product name" },
-                        quantity: { type: "number", description: "Quantity requested" },
-                        unit: { type: "string", description: "Unit if specified (kg, L, un, etc)" },
-                        original: { type: "string", description: "Original spoken text for this item" },
-                        confidence: { type: "boolean", description: "Whether the parser is confident about this item" }
+                        name: { type: "string" },
+                        quantity: { type: "number" },
+                        unit: { type: "string" },
+                        original: { type: "string" },
+                        confidence: { type: "boolean" }
                       },
                       required: ["name", "quantity", "original", "confidence"],
                       additionalProperties: false
@@ -104,8 +112,6 @@ Regras:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const text = await response.text();
-      console.error("AI gateway error:", response.status, text);
       return new Response(JSON.stringify({ error: "Erro ao processar lista" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -131,7 +137,7 @@ Regras:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch {
-        // Return raw content
+        // Fall through
       }
     }
 
@@ -139,8 +145,7 @@ Regras:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("parse-voice-list error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Erro desconhecido" }), {
+    return new Response(JSON.stringify({ error: "Erro interno do servidor" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

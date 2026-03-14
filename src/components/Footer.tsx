@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Award, Shield, Heart } from "lucide-react";
+import { Shield, Heart, Truck } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -18,11 +18,11 @@ const Footer = () => {
           </div>
           <div className="flex flex-col items-center text-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
-              <Award className="h-5 w-5 text-accent" />
+              <Truck className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground">Fidelidade</p>
-              <p className="text-[10px] text-muted-foreground">Ganhe pontos a cada compra</p>
+              <p className="text-xs font-semibold text-foreground">Entrega Rápida</p>
+              <p className="text-[10px] text-muted-foreground">Direto do bairro pra você</p>
             </div>
           </div>
           <div className="flex flex-col items-center text-center gap-2">
@@ -55,9 +55,6 @@ const Footer = () => {
             </Link>
             <Link to="/privacidade" className="hover:text-foreground transition-colors">
               Privacidade
-            </Link>
-            <Link to="/dashboard" className="hover:text-foreground transition-colors">
-              Área do Lojista
             </Link>
           </div>
         </div>

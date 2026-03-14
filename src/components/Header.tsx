@@ -35,13 +35,16 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/compra-voz"
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-            title="Compra por Voz"
-          >
-            <Mic className="h-5 w-5" />
-          </Link>
+          {/* Voice shopping - only show if logged in */}
+          {!loading && user && (
+            <Link
+              to="/compra-voz"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              title="Lista Inteligente"
+            >
+              <Mic className="h-5 w-5" />
+            </Link>
+          )}
           {!loading && (
             user ? (
               <DropdownMenu>
@@ -55,6 +58,12 @@ const Header = () => {
                     <p className="text-xs text-muted-foreground truncate max-w-[180px]">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/compra-voz" className="cursor-pointer">
+                      <Mic className="h-4 w-4 mr-2" />
+                      Lista Inteligente
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/meus-pedidos" className="cursor-pointer">
                       <Package className="h-4 w-4 mr-2" />

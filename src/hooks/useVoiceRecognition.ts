@@ -19,8 +19,10 @@ export function useVoiceRecognition() {
 
   const recognitionRef = useRef<any>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transcriptRef = useRef("");
+  const onEndCallbackRef = useRef<((transcript: string) => void) | null>(null);
 
-  const start = useCallback(() => {
+  const start = useCallback((onEnd?: (transcript: string) => void) => {
     if (!state.isSupported) {
       setState((s) => ({ ...s, error: "Seu navegador não suporta reconhecimento de voz. Use o Chrome ou Edge." }));
       return;
@@ -29,6 +31,9 @@ export function useVoiceRecognition() {
     if (recognitionRef.current) {
       recognitionRef.current.abort();
     }
+
+    onEndCallbackRef.current = onEnd || null;
+    transcriptRef.current = "";
 
     const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognitionCtor();
@@ -63,6 +68,10 @@ export function useVoiceRecognition() {
         }
       }
 
+      if (finalTranscript) {
+        transcriptRef.current = finalTranscript;
+      }
+
       setState((s) => ({
         ...s,
         transcript: finalTranscript || s.transcript,
@@ -87,6 +96,10 @@ export function useVoiceRecognition() {
     recognition.onend = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       setState((s) => ({ ...s, isListening: false }));
+      // Fire callback with latest transcript from ref (avoids stale closure)
+      if (onEndCallbackRef.current && transcriptRef.current) {
+        onEndCallbackRef.current(transcriptRef.current);
+      }
     };
 
     recognitionRef.current = recognition;
@@ -108,6 +121,7 @@ export function useVoiceRecognition() {
 
   const reset = useCallback(() => {
     stop();
+    transcriptRef.current = "";
     setState((s) => ({ ...s, transcript: "", interimTranscript: "", error: null }));
   }, [stop]);
 
