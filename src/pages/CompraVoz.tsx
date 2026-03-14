@@ -70,11 +70,6 @@ const CompraVoz = () => {
   const [expandedItem, setExpandedItem] = useState<number | null>(null);
   const [inputMode, setInputMode] = useState<InputMode>("voice");
 
-  // Redirect to login if not authenticated
-  if (!authLoading && !user) {
-    return <Navigate to="/login" state={{ from: { pathname: "/compra-voz" } }} replace />;
-  }
-
   const parseTranscript = useCallback(async (text: string) => {
     if (!text.trim()) {
       toast.error("Nenhum texto para interpretar");
