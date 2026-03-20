@@ -36,7 +36,7 @@ const Perfil = () => {
           setForm({
             display_name: profile.display_name || "",
             phone: profile.phone || "",
-            address: (profile as any).address || "",
+            address: profile.address || "",
           });
         }
       } catch {
