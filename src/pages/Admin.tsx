@@ -487,7 +487,7 @@ const Admin = () => {
                       {userRole !== "admin" && (
                         <select
                           value={userRole}
-                          onChange={(e) => handleRoleChange(u.user_id, e.target.value as any)}
+                          onChange={(e) => handleRoleChange(u.user_id, e.target.value as "admin" | "moderator" | "user")}
                           className="rounded-lg border bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                         >
                           <option value="user">Cliente</option>
