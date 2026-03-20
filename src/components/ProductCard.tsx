@@ -3,6 +3,7 @@ import { Plus, Check, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import type { Tables } from "@/integrations/supabase/types";
+import type { CartProduct } from "@/types";
 
 interface ProductCardProps {
   product: Tables<"products"> & { categories?: { name: string; icon: string | null } | null };
@@ -19,7 +20,7 @@ const ProductCard = memo(({ product, storeId, storeName, storeWhatsapp }: Produc
   const quantity = cartItem?.quantidade || 0;
 
   const handleAdd = () => {
-    const cartProduct = {
+    const cartProduct: CartProduct = {
       id: product.id,
       nome: product.name,
       preco: Number(product.price),

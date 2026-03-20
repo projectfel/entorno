@@ -1,16 +1,9 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
-import type { Product } from "@/data/mockData";
-
-export interface CartItem extends Product {
-  quantidade: number;
-  marketId: string;
-  marketNome: string;
-  marketWhatsapp: string;
-}
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
+import type { CartProduct, CartItem } from "@/types";
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, marketId: string, marketNome: string, marketWhatsapp: string) => void;
+  addItem: (product: CartProduct, marketId: string, marketNome: string, marketWhatsapp: string) => void;
   removeItem: (productId: string, marketId: string) => void;
   updateQuantity: (productId: string, marketId: string, quantidade: number) => void;
   clearCart: () => void;
@@ -27,7 +20,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isOpen, setIsOpen] = useState(false);
 
   const addItem = useCallback(
-    (product: Product, marketId: string, marketNome: string, marketWhatsapp: string) => {
+    (product: CartProduct, marketId: string, marketNome: string, marketWhatsapp: string) => {
       setItems((prev) => {
         const existing = prev.find((i) => i.id === product.id && i.marketId === marketId);
         if (existing) {
@@ -64,16 +57,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = useCallback(() => setItems([]), []);
 
-  const total = items.reduce((sum, i) => sum + i.preco * i.quantidade, 0);
-  const itemCount = items.reduce((sum, i) => sum + i.quantidade, 0);
+  const total = useMemo(() => items.reduce((sum, i) => sum + i.preco * i.quantidade, 0), [items]);
+  const itemCount = useMemo(() => items.reduce((sum, i) => sum + i.quantidade, 0), [items]);
 
-  return (
-    <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, total, itemCount, isOpen, setIsOpen }}
-    >
-      {children}
-    </CartContext.Provider>
+  const value = useMemo<CartContextType>(
+    () => ({ items, addItem, removeItem, updateQuantity, clearCart, total, itemCount, isOpen, setIsOpen }),
+    [items, addItem, removeItem, updateQuantity, clearCart, total, itemCount, isOpen]
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
 export const useCart = () => {
