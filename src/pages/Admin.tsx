@@ -352,7 +352,7 @@ const Admin = () => {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setStatusFilter(opt.value as any)}
+                  onClick={() => setStatusFilter(opt.value as typeof statusFilter)}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                     statusFilter === opt.value
                       ? "bg-primary text-primary-foreground border-primary"
