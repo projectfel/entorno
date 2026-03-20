@@ -521,7 +521,7 @@ const Admin = () => {
                         <p className="text-xs text-muted-foreground">
                           {new Date(o.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </p>
-                        <p className="font-medium text-card-foreground mt-1">{(o as any).stores?.name || "Loja"}</p>
+                        <p className="font-medium text-card-foreground mt-1">{(o as { stores?: { name: string } }).stores?.name || "Loja"}</p>
                         <p className="text-sm text-muted-foreground">{orderItems.length} {orderItems.length === 1 ? "item" : "itens"}</p>
                       </div>
                       <div className="text-right">
