@@ -68,7 +68,7 @@ const Perfil = () => {
         display_name: form.display_name,
         phone: form.phone || undefined,
         address: form.address || undefined,
-      } as any);
+      });
       toast.success("Perfil atualizado com sucesso!", { id: toastId });
     } catch {
       toast.error("Erro ao salvar perfil", { id: toastId });
