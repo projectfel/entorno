@@ -475,10 +475,10 @@ const Dashboard = () => {
                             <span className="text-xs text-muted-foreground line-through">R$ {Number(p.original_price).toFixed(2).replace(".", ",")}</span>
                           )}
                           {p.unit && <span className="text-xs text-muted-foreground">{p.unit}</span>}
-                          {(p as any).categories?.name && (
+                          {(p as { categories?: { name: string } }).categories?.name && (
                             <Badge variant="outline" className="text-[9px] px-1.5 gap-0.5">
                               <Tag className="h-2.5 w-2.5" />
-                              {(p as any).categories.name}
+                              {(p as { categories?: { name: string } }).categories!.name}
                             </Badge>
                           )}
                           {!p.in_stock && <Badge variant="secondary" className="text-[10px]">Sem estoque</Badge>}

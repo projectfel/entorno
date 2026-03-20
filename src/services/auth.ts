@@ -11,10 +11,15 @@ export const authService = {
     return data;
   },
 
-  async updateProfile(userId: string, updates: { display_name?: string; phone?: string; avatar_url?: string; address?: string }) {
+  async updateProfile(userId: string, updates: { display_name?: string; phone?: string; address?: string }) {
+    const sanitized: Record<string, string | undefined> = {};
+    if (updates.display_name !== undefined) sanitized.display_name = updates.display_name.trim();
+    if (updates.phone !== undefined) sanitized.phone = updates.phone.trim() || undefined;
+    if (updates.address !== undefined) sanitized.address = updates.address.trim() || undefined;
+
     const { data, error } = await supabase
       .from("profiles")
-      .update(updates)
+      .update(sanitized)
       .eq("user_id", userId)
       .select()
       .maybeSingle();

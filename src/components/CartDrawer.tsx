@@ -1,5 +1,5 @@
 import { X, Minus, Plus, MessageCircle, Trash2, Copy, Check, MapPin } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { authService } from "@/services/auth";
@@ -14,19 +14,18 @@ const CartDrawer = () => {
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(false);
 
-  // Load user address when drawer opens
   useEffect(() => {
     if (isOpen && user) {
       setLoadingAddress(true);
       authService.getProfile(user.id).then((profile) => {
-        setUserAddress((profile as any)?.address || null);
+        setUserAddress(profile?.address || null);
       }).catch(() => {
         setUserAddress(null);
       }).finally(() => setLoadingAddress(false));
     }
   }, [isOpen, user]);
 
-  const buildMessage = () => {
+  const buildMessage = useCallback(() => {
     if (items.length === 0) return "";
 
     const byMarket = items.reduce((acc, item) => {
@@ -48,7 +47,7 @@ const CartDrawer = () => {
       : "📍 Endereço: [Não cadastrado]";
 
     return `Olá ${firstMarket.nome}! 🛒\n\nGostaria de fazer este pedido:\n\n${itens}\n\n💰 Total: R$ ${totalStr}\n\n${addressLine}\n\nObrigado!`;
-  };
+  }, [items, total, userAddress]);
 
   const getWhatsappNumber = () => {
     if (items.length === 0) return "";
@@ -161,7 +160,6 @@ const CartDrawer = () => {
             </div>
 
             <div className="space-y-3 border-t pt-4">
-              {/* Address indicator */}
               {user && !loadingAddress && (
                 <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs ${hasAddress ? "bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]" : "bg-destructive/10 text-destructive"}`}>
                   <MapPin className="h-3.5 w-3.5 shrink-0" />

@@ -1,20 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsService } from "@/services/products";
+import { CACHE_TIMES, QUERY_KEYS } from "@/constants";
 
 export function useProducts(storeId: string | undefined) {
   return useQuery({
-    queryKey: ["products", storeId],
+    queryKey: [QUERY_KEYS.PRODUCTS, storeId],
     queryFn: () => productsService.getByStore(storeId!),
     enabled: !!storeId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: CACHE_TIMES.MEDIUM,
   });
 }
 
 export function useFeaturedProducts() {
   return useQuery({
-    queryKey: ["products", "featured"],
+    queryKey: QUERY_KEYS.FEATURED_PRODUCTS,
     queryFn: productsService.getFeatured,
-    staleTime: 5 * 60 * 1000,
+    staleTime: CACHE_TIMES.MEDIUM,
   });
 }
 
@@ -23,7 +24,8 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: productsService.create,
     onSuccess: (data) => {
-      qc.invalidateQueries({ queryKey: ["products", data.store_id] });
+      qc.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS, data.store_id] });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.FEATURED_PRODUCTS });
     },
   });
 }
@@ -34,7 +36,8 @@ export function useUpdateProduct() {
     mutationFn: ({ id, updates }: { id: string; updates: Record<string, unknown> }) =>
       productsService.update(id, updates),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.FEATURED_PRODUCTS });
     },
   });
 }
@@ -44,7 +47,8 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: productsService.remove,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.FEATURED_PRODUCTS });
     },
   });
 }

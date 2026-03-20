@@ -23,9 +23,7 @@ const Index = () => {
     });
   }, [stores, busca]);
 
-  // Apenas mercados ativos (não desativados/manutenção) aparecem na página inicial
   const ativos = filtered.filter((s) => s.status !== "maintenance");
-
   const abertos = ativos.filter((s) => isStoreOpen(s));
   const fechados = ativos.filter((s) => !isStoreOpen(s));
 
@@ -39,7 +37,6 @@ const Index = () => {
 
       <FeaturedDeals />
 
-      {/* Featured products */}
       {featuredProducts && featuredProducts.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 mt-12">
           <div className="flex items-center gap-2 mb-5">
@@ -52,29 +49,31 @@ const Index = () => {
             </div>
           </div>
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((p) => (
-              <div key={p.id} className="rounded-2xl border bg-card p-4 transition-all hover:shadow-md">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  {(p as any).stores?.name || ""}
-                </span>
-                <h4 className="mt-1 font-semibold text-card-foreground text-sm truncate">{p.name}</h4>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-lg font-bold text-primary">
-                    R$ {Number(p.price).toFixed(2).replace(".", ",")}
+            {featuredProducts.map((p) => {
+              const storeName = (p as Record<string, unknown> & { stores?: { name: string } }).stores?.name || "";
+              return (
+                <div key={p.id} className="rounded-2xl border bg-card p-4 transition-all hover:shadow-md">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    {storeName}
                   </span>
-                  {p.original_price && (
-                    <span className="text-xs text-muted-foreground line-through">
-                      R$ {Number(p.original_price).toFixed(2).replace(".", ",")}
+                  <h4 className="mt-1 font-semibold text-card-foreground text-sm truncate">{p.name}</h4>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-lg font-bold text-primary">
+                      R$ {Number(p.price).toFixed(2).replace(".", ",")}
                     </span>
-                  )}
+                    {p.original_price && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        R$ {Number(p.original_price).toFixed(2).replace(".", ",")}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
 
-      {/* Store listings */}
       <section className="mx-auto max-w-6xl px-4 mt-12">
         {isLoading ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

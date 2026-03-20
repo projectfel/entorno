@@ -1,9 +1,17 @@
 import { Flame, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Combo } from "@/data/mockData";
+
+interface ComboData {
+  id: string;
+  nome: string;
+  descricao: string;
+  precoCombo: number;
+  precoOriginal: number;
+  itens: string[];
+}
 
 interface ComboCardProps {
-  combo: Combo;
+  combo: ComboData;
   onAdd?: () => void;
 }
 

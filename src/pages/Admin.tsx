@@ -119,7 +119,7 @@ const Admin = () => {
     const newStatus = currentStatus === "open" ? "closed" : "open";
     const toastId = toast.loading(newStatus === "open" ? "Abrindo mercado..." : "Fechando mercado...");
     try {
-      await adminService.updateStoreStatus(storeId, newStatus as any);
+      await adminService.updateStoreStatus(storeId, newStatus as "open" | "closed" | "maintenance");
       toast.success(newStatus === "open" ? "Mercado aberto!" : "Mercado fechado!", { id: toastId });
       setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)));
       queryClient.invalidateQueries({ queryKey: ["stores"] });
@@ -132,7 +132,7 @@ const Admin = () => {
     const newStatus = currentStatus === "maintenance" ? "closed" : "maintenance";
     const toastId = toast.loading(newStatus === "maintenance" ? "Desativando mercado..." : "Reativando mercado...");
     try {
-      await adminService.updateStoreStatus(storeId, newStatus as any);
+      await adminService.updateStoreStatus(storeId, newStatus as "open" | "closed" | "maintenance");
       toast.success(newStatus === "maintenance" ? "Mercado desativado!" : "Mercado reativado!", { id: toastId });
       setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)));
       queryClient.invalidateQueries({ queryKey: ["stores"] });
@@ -352,7 +352,7 @@ const Admin = () => {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setStatusFilter(opt.value as any)}
+                  onClick={() => setStatusFilter(opt.value as typeof statusFilter)}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                     statusFilter === opt.value
                       ? "bg-primary text-primary-foreground border-primary"
@@ -487,7 +487,7 @@ const Admin = () => {
                       {userRole !== "admin" && (
                         <select
                           value={userRole}
-                          onChange={(e) => handleRoleChange(u.user_id, e.target.value as any)}
+                          onChange={(e) => handleRoleChange(u.user_id, e.target.value as "admin" | "moderator" | "user")}
                           className="rounded-lg border bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                         >
                           <option value="user">Cliente</option>
@@ -521,7 +521,7 @@ const Admin = () => {
                         <p className="text-xs text-muted-foreground">
                           {new Date(o.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </p>
-                        <p className="font-medium text-card-foreground mt-1">{(o as any).stores?.name || "Loja"}</p>
+                        <p className="font-medium text-card-foreground mt-1">{(o as { stores?: { name: string } }).stores?.name || "Loja"}</p>
                         <p className="text-sm text-muted-foreground">{orderItems.length} {orderItems.length === 1 ? "item" : "itens"}</p>
                       </div>
                       <div className="text-right">
