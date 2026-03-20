@@ -132,7 +132,7 @@ const Admin = () => {
     const newStatus = currentStatus === "maintenance" ? "closed" : "maintenance";
     const toastId = toast.loading(newStatus === "maintenance" ? "Desativando mercado..." : "Reativando mercado...");
     try {
-      await adminService.updateStoreStatus(storeId, newStatus as any);
+      await adminService.updateStoreStatus(storeId, newStatus as "open" | "closed" | "maintenance");
       toast.success(newStatus === "maintenance" ? "Mercado desativado!" : "Mercado reativado!", { id: toastId });
       setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)));
       queryClient.invalidateQueries({ queryKey: ["stores"] });
