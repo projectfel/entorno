@@ -12,6 +12,16 @@ const statusMap: Record<string, { label: string; color: string; icon: React.Elem
   cancelled: { label: "Cancelado", color: "bg-destructive text-destructive-foreground", icon: XCircle },
 };
 
+interface OrderWithStore {
+  id: string;
+  created_at: string;
+  status: string;
+  total: number;
+  items: unknown;
+  notes: string | null;
+  stores: { name: string } | null;
+}
+
 const MeusPedidos = () => {
   const { user } = useAuth();
   const { data: orders, isLoading } = useUserOrders(user?.id);
@@ -40,7 +50,7 @@ const MeusPedidos = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {orders.map((order) => {
+          {(orders as OrderWithStore[]).map((order) => {
             const st = statusMap[order.status] || statusMap.pending;
             const Icon = st.icon;
             const items = Array.isArray(order.items) ? order.items : [];
@@ -52,7 +62,7 @@ const MeusPedidos = () => {
                       {new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </p>
                     <p className="font-medium text-card-foreground mt-1">
-                      {(order as any).stores?.name || "Loja"}
+                      {order.stores?.name || "Loja"}
                     </p>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       {items.length} {items.length === 1 ? "item" : "itens"}

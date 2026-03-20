@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { CACHE_TIMES, QUERY_KEYS } from "@/constants";
 
 export function useCategories() {
   return useQuery({
-    queryKey: ["categories"],
+    queryKey: [QUERY_KEYS.CATEGORIES],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("categories")
@@ -12,6 +13,6 @@ export function useCategories() {
       if (error) throw error;
       return data;
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: CACHE_TIMES.LONG,
   });
 }
