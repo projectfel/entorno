@@ -14,7 +14,7 @@ export const authService = {
   async updateProfile(userId: string, updates: { display_name?: string; phone?: string; avatar_url?: string; address?: string }) {
     const { data, error } = await supabase
       .from("profiles")
-      .update(updates as any)
+      .update(updates)
       .eq("user_id", userId)
       .select()
       .maybeSingle();

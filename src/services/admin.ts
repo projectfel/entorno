@@ -11,12 +11,22 @@ export const adminService = {
   },
 
   async getAllProfiles() {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*, user_roles(role)")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return data;
+    const [profilesRes, rolesRes] = await Promise.all([
+      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("user_id, role"),
+    ]);
+    if (profilesRes.error) throw profilesRes.error;
+    if (rolesRes.error) throw rolesRes.error;
+
+    const rolesMap = new Map<string, string>();
+    for (const r of rolesRes.data || []) {
+      rolesMap.set(r.user_id, r.role);
+    }
+
+    return (profilesRes.data || []).map((p) => ({
+      ...p,
+      user_roles: [{ role: rolesMap.get(p.user_id) || "user" }],
+    }));
   },
 
   async getAllOrders() {
