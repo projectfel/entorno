@@ -12,8 +12,8 @@ import { z } from "zod";
 
 const profileSchema = z.object({
   display_name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
-  phone: z.string().trim().optional(),
-  address: z.string().trim().optional(),
+  phone: z.string().trim().regex(/^$|^[\d+\s()-]{8,20}$/, "Telefone inválido").optional().or(z.literal("")),
+  address: z.string().trim().max(300, "Endereço muito longo").optional().or(z.literal("")),
 });
 
 const Perfil = () => {
@@ -65,13 +65,14 @@ const Perfil = () => {
     const toastId = toast.loading("Salvando perfil...");
     try {
       await authService.updateProfile(user.id, {
-        display_name: form.display_name,
-        phone: form.phone || undefined,
-        address: form.address || undefined,
+        display_name: form.display_name.trim(),
+        phone: form.phone.trim() || undefined,
+        address: form.address.trim() || undefined,
       });
       toast.success("Perfil atualizado com sucesso!", { id: toastId });
-    } catch {
-      toast.error("Erro ao salvar perfil", { id: toastId });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao salvar perfil";
+      toast.error(msg, { id: toastId });
     } finally {
       setSaving(false);
     }
@@ -127,6 +128,7 @@ const Perfil = () => {
             value={form.phone}
             onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
           />
+          {errors.phone && <p className="mt-1 text-xs text-destructive">{errors.phone}</p>}
         </div>
 
         <div>

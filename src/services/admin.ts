@@ -34,7 +34,7 @@ export const adminService = {
       .from("orders")
       .select("*, stores(name)")
       .order("created_at", { ascending: false })
-      .limit(100);
+      .limit(200);
     if (error) throw error;
     return data;
   },
@@ -51,22 +51,48 @@ export const adminService = {
   },
 
   async deleteStore(storeId: string) {
-    // First delete products
+    // Delete combos items first, then combos
+    const { data: combos } = await supabase.from("combos").select("id").eq("store_id", storeId);
+    if (combos && combos.length > 0) {
+      const comboIds = combos.map((c) => c.id);
+      await supabase.from("combo_items").delete().in("combo_id", comboIds);
+      await supabase.from("combos").delete().eq("store_id", storeId);
+    }
+    // Delete products
     await supabase.from("products").delete().eq("store_id", storeId);
+    // Delete loyalty data
+    await supabase.from("loyalty_points").delete().eq("store_id", storeId);
+    await supabase.from("loyalty_rewards").delete().eq("store_id", storeId);
     // Then delete the store
     const { error } = await supabase.from("stores").delete().eq("id", storeId);
     if (error) throw error;
   },
 
   async updateUserRole(userId: string, role: "admin" | "moderator" | "user") {
-    const { data, error } = await supabase
+    const { data: existing } = await supabase
       .from("user_roles")
-      .update({ role })
+      .select("id")
       .eq("user_id", userId)
-      .select()
       .maybeSingle();
-    if (error) throw error;
-    return data;
+
+    if (existing) {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .update({ role })
+        .eq("user_id", userId)
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    } else {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role })
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    }
   },
 
   async createStoreOwner(params: {
@@ -82,36 +108,7 @@ export const adminService = {
       body: params,
     });
     if (error) throw error;
+    if (data?.error) throw new Error(data.error);
     return data;
-  },
-
-  async getStats() {
-    const { data: allStores, error: storesErr } = await supabase
-      .from("stores")
-      .select("id");
-    if (storesErr) throw storesErr;
-
-    const { data: allProfiles, error: profilesErr } = await supabase
-      .from("profiles")
-      .select("id");
-    if (profilesErr) throw profilesErr;
-
-    const { data: clientRoles, error: clientsErr } = await supabase
-      .from("user_roles")
-      .select("id")
-      .eq("role", "user");
-    if (clientsErr) throw clientsErr;
-
-    const { data: allOrders, error: ordersErr } = await supabase
-      .from("orders")
-      .select("id");
-    if (ordersErr) throw ordersErr;
-
-    return {
-      totalStores: allStores?.length ?? 0,
-      totalRegisteredUsers: allProfiles?.length ?? 0,
-      totalClients: clientRoles?.length ?? 0,
-      totalOrders: allOrders?.length ?? 0,
-    };
   },
 };
