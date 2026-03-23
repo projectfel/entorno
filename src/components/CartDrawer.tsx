@@ -1,4 +1,4 @@
-import { X, Minus, Plus, MessageCircle, Trash2, Copy, Check, MapPin } from "lucide-react";
+import { X, Minus, Plus, MessageCircle, Trash2, Copy, Check, MapPin, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -74,7 +74,8 @@ const CartDrawer = () => {
 
     const msg = buildMessage();
     const whatsapp = getWhatsappNumber();
-    const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`;
+    const cleanNumber = whatsapp.replace(/[^0-9+]/g, "");
+    const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
 
     const newWindow = window.open(url, "_blank");
 
@@ -103,6 +104,7 @@ const CartDrawer = () => {
   };
 
   const hasAddress = !!userAddress;
+  const currentStoreName = items.length > 0 ? items[0].marketNome : null;
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -119,6 +121,14 @@ const CartDrawer = () => {
           </div>
         ) : (
           <>
+            {/* Store indicator */}
+            {currentStoreName && (
+              <div className="flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 text-xs text-primary font-medium">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                Comprando em: {currentStoreName}
+              </div>
+            )}
+
             <div className="flex-1 space-y-3 overflow-y-auto py-4">
               {items.map((item) => (
                 <div
@@ -126,7 +136,6 @@ const CartDrawer = () => {
                   className="flex items-center gap-3 rounded-lg border bg-card p-3"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">{item.marketNome}</p>
                     <p className="font-medium text-card-foreground truncate">{item.nome}</p>
                     <p className="text-sm font-bold text-primary">
                       R$ {(item.preco * item.quantidade).toFixed(2).replace(".", ",")}

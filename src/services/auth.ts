@@ -12,10 +12,18 @@ export const authService = {
   },
 
   async updateProfile(userId: string, updates: { display_name?: string; phone?: string; address?: string }) {
-    const sanitized: Record<string, string | undefined> = {};
-    if (updates.display_name !== undefined) sanitized.display_name = updates.display_name.trim();
-    if (updates.phone !== undefined) sanitized.phone = updates.phone.trim() || undefined;
-    if (updates.address !== undefined) sanitized.address = updates.address.trim() || undefined;
+    const sanitized: Record<string, string | null> = {};
+    if (updates.display_name !== undefined) {
+      const trimmed = updates.display_name.trim();
+      if (trimmed.length < 2) throw new Error("Nome deve ter pelo menos 2 caracteres");
+      sanitized.display_name = trimmed;
+    }
+    if (updates.phone !== undefined) {
+      sanitized.phone = updates.phone.trim() || null;
+    }
+    if (updates.address !== undefined) {
+      sanitized.address = updates.address.trim() || null;
+    }
 
     const { data, error } = await supabase
       .from("profiles")

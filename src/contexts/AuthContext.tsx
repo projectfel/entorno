@@ -80,6 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = useCallback(async () => {
+    // Clear cart on logout
+    try { localStorage.removeItem("entorno_cart"); } catch {}
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);

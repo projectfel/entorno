@@ -40,7 +40,6 @@ const Dashboard = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Form state - added category_id, original_price, featured
   const [form, setForm] = useState({
     name: "", price: "", description: "", unit: "un", image_url: "",
     category_id: "", original_price: "", featured: false,
@@ -92,31 +91,22 @@ const Dashboard = () => {
     if (!form.name || !form.price || !store) return;
     const toastId = toast.loading(editingId ? "Atualizando produto..." : "Criando produto...");
     try {
+      const productData = {
+        name: form.name.trim(),
+        price: parseFloat(form.price),
+        description: form.description.trim(),
+        unit: form.unit,
+        image_url: form.image_url || null,
+        category_id: form.category_id || null,
+        original_price: form.original_price ? parseFloat(form.original_price) : null,
+        featured: form.featured,
+      };
+
       if (editingId) {
-        await updateProduct.mutateAsync({
-          id: editingId,
-          updates: {
-            name: form.name,
-            price: parseFloat(form.price),
-            description: form.description,
-            unit: form.unit,
-            image_url: form.image_url || null,
-            category_id: form.category_id || null,
-            original_price: form.original_price ? parseFloat(form.original_price) : null,
-            featured: form.featured,
-          },
-        });
+        await updateProduct.mutateAsync({ id: editingId, updates: productData });
         toast.success("Produto atualizado!", { id: toastId });
       } else {
-        await createProduct.mutateAsync({
-          name: form.name,
-          price: parseFloat(form.price),
-          store_id: store.id,
-          description: form.description,
-          unit: form.unit,
-          image_url: form.image_url || undefined,
-          category_id: form.category_id || undefined,
-        });
+        await createProduct.mutateAsync({ ...productData, store_id: store.id });
         toast.success("Produto criado!", { id: toastId });
       }
       resetForm();
@@ -135,7 +125,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleEdit = (p: any) => {
+  const handleEdit = (p: { id: string; name: string; price: number; description: string | null; unit: string | null; image_url: string | null; category_id: string | null; original_price: number | null; featured: boolean | null }) => {
     setForm({
       name: p.name,
       price: String(p.price),
@@ -150,7 +140,7 @@ const Dashboard = () => {
     setShowAdd(true);
   };
 
-  const handleTogglePromo = async (p: any) => {
+  const handleTogglePromo = async (p: { id: string; featured: boolean | null }) => {
     const toastId = toast.loading(p.featured ? "Removendo destaque..." : "Adicionando destaque...");
     try {
       await updateProduct.mutateAsync({
@@ -196,8 +186,8 @@ const Dashboard = () => {
     if (!store) return;
     setStoreForm({
       name: store.name, description: store.description || "", address: store.address || "",
-      phone: store.phone || "", whatsapp: store.whatsapp, opens_at: store.opens_at || "",
-      closes_at: store.closes_at || "", delivery_fee: String(store.delivery_fee ?? 0),
+      phone: store.phone || "", whatsapp: store.whatsapp, opens_at: store.opens_at ? String(store.opens_at).slice(0, 5) : "",
+      closes_at: store.closes_at ? String(store.closes_at).slice(0, 5) : "", delivery_fee: String(store.delivery_fee ?? 0),
       min_order: String(store.min_order ?? 0), delivery_time_min: String(store.delivery_time_min ?? 30),
       delivery_time_max: String(store.delivery_time_max ?? 60),
     });
@@ -210,8 +200,8 @@ const Dashboard = () => {
     const toastId = toast.loading("Salvando configurações...");
     try {
       await storesService.update(store.id, {
-        name: storeForm.name, description: storeForm.description, address: storeForm.address,
-        phone: storeForm.phone, whatsapp: storeForm.whatsapp, opens_at: storeForm.opens_at || null,
+        name: storeForm.name.trim(), description: storeForm.description.trim(), address: storeForm.address.trim(),
+        phone: storeForm.phone.trim(), whatsapp: storeForm.whatsapp.trim(), opens_at: storeForm.opens_at || null,
         closes_at: storeForm.closes_at || null, delivery_fee: parseFloat(storeForm.delivery_fee) || 0,
         min_order: parseFloat(storeForm.min_order) || 0, delivery_time_min: parseInt(storeForm.delivery_time_min) || 30,
         delivery_time_max: parseInt(storeForm.delivery_time_max) || 60,
@@ -246,7 +236,6 @@ const Dashboard = () => {
     );
   }
 
-  // Use isStoreOpen to reflect the real status based on hours
   const reallyOpen = isStoreOpen(store);
   const { label: statusLabel } = getStoreStatusLabel(store);
 
@@ -332,7 +321,6 @@ const Dashboard = () => {
                 >
                   {store.status === "open" ? "Aberto" : "Fechado"}
                 </button>
-                {/* Show real-time status hint if has hours */}
                 {store.opens_at && store.closes_at && (
                   <span className={`text-[10px] ${reallyOpen ? "text-[hsl(var(--success))]" : "text-muted-foreground"}`}>
                     {reallyOpen ? "Dentro do horário" : "Fora do horário"}
@@ -341,7 +329,7 @@ const Dashboard = () => {
               </div>
               {store.opens_at && store.closes_at && (
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  Horário: {store.opens_at} - {store.closes_at}
+                  Horário: {String(store.opens_at).slice(0, 5)} - {String(store.closes_at).slice(0, 5)}
                 </p>
               )}
             </div>
@@ -351,8 +339,8 @@ const Dashboard = () => {
 
       <Tabs defaultValue="products">
         <TabsList className="mb-6">
-          <TabsTrigger value="products">Produtos</TabsTrigger>
-          <TabsTrigger value="orders">Pedidos</TabsTrigger>
+          <TabsTrigger value="products">Produtos ({products?.length ?? 0})</TabsTrigger>
+          <TabsTrigger value="orders">Pedidos ({orders?.length ?? 0})</TabsTrigger>
           <TabsTrigger value="analytics" className="gap-1.5">
             <BarChart3 className="h-3.5 w-3.5" />
             Resumo
@@ -396,7 +384,6 @@ const Dashboard = () => {
                   className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 <input type="text" placeholder="Unidade (ex: kg, un, 500ml)" value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
                   className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                {/* Category selector */}
                 <select
                   value={form.category_id}
                   onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
@@ -407,7 +394,6 @@ const Dashboard = () => {
                     <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                   ))}
                 </select>
-                {/* Original price for promo */}
                 <input type="number" step="0.01" placeholder="Preço original (promoção)" value={form.original_price} onChange={(e) => setForm((f) => ({ ...f, original_price: e.target.value }))}
                   className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
@@ -418,7 +404,6 @@ const Dashboard = () => {
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                 </label>
                 {form.image_url && <img src={form.image_url} alt="Preview" className="h-10 w-10 rounded-lg object-cover" />}
-                {/* Featured toggle */}
                 <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -549,11 +534,26 @@ const Dashboard = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-primary">R$ {Number(order.total).toFixed(2).replace(".", ",")}</p>
-                        <Badge className={`mt-1 ${order.status === "pending" ? "bg-accent text-accent-foreground" : order.status === "confirmed" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"} border-0`}>
+                        <Badge className={`mt-1 ${order.status === "pending" ? "bg-accent text-accent-foreground" : order.status === "confirmed" ? "bg-primary text-primary-foreground" : order.status === "delivered" ? "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]" : "bg-muted text-muted-foreground"} border-0`}>
                           {order.status === "pending" ? "Pendente" : order.status === "confirmed" ? "Confirmado" : order.status === "delivered" ? "Entregue" : order.status === "cancelled" ? "Cancelado" : order.status}
                         </Badge>
                       </div>
                     </div>
+                    {/* Render order items */}
+                    {items.length > 0 && (
+                      <div className="mt-3 border-t pt-2 space-y-1">
+                        {(items as Array<{ nome?: string; name?: string; quantidade?: number; quantity?: number; preco?: number; price?: number }>).map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-xs text-muted-foreground">
+                            <span>{item.nome || item.name || "Item"} ×{item.quantidade || item.quantity || 1}</span>
+                            {(item.preco || item.price) && (
+                              <span className="text-card-foreground">
+                                R$ {((Number(item.preco || item.price) * (item.quantidade || item.quantity || 1))).toFixed(2).replace(".", ",")}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {order.status === "pending" && (
                       <div className="flex gap-2 mt-3 border-t pt-3">
                         <button onClick={() => handleOrderStatus(order.id, "confirmed")} className="flex-1 rounded-lg bg-primary py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity">
@@ -578,7 +578,7 @@ const Dashboard = () => {
           )}
         </TabsContent>
 
-        {/* Analytics Tab - Simplified */}
+        {/* Analytics Tab */}
         <TabsContent value="analytics">
           <AnalyticsDashboard storeId={store.id} storeName={store.name} />
         </TabsContent>
@@ -593,7 +593,6 @@ const Dashboard = () => {
               <button onClick={() => setShowSettings(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
             </div>
 
-            {/* Status explanation */}
             <div className="mb-4 rounded-lg bg-muted/50 p-3">
               <p className="text-xs font-medium text-foreground mb-1">Como funciona o status:</p>
               <ul className="text-xs text-muted-foreground space-y-0.5">
@@ -603,7 +602,6 @@ const Dashboard = () => {
               </ul>
             </div>
 
-            {/* Cover image in settings */}
             <div className="mb-4">
               <label className="text-xs font-medium text-muted-foreground">Foto de capa</label>
               <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
@@ -676,20 +674,26 @@ const Dashboard = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Tempo mín. (min)</label>
+                  <label className="text-xs font-medium text-muted-foreground">Tempo mín. entrega (min)</label>
                   <input type="number" value={storeForm.delivery_time_min} onChange={(e) => setStoreForm((f) => ({ ...f, delivery_time_min: e.target.value }))}
                     className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Tempo máx. (min)</label>
+                  <label className="text-xs font-medium text-muted-foreground">Tempo máx. entrega (min)</label>
                   <input type="number" value={storeForm.delivery_time_max} onChange={(e) => setStoreForm((f) => ({ ...f, delivery_time_max: e.target.value }))}
                     className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
               </div>
             </div>
-            <button onClick={handleSaveSettings} className="mt-4 w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity">
-              Salvar Configurações
-            </button>
+
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowSettings(false)} className="flex-1 rounded-lg border py-2.5 text-sm text-muted-foreground hover:bg-secondary transition-colors">
+                Cancelar
+              </button>
+              <button onClick={handleSaveSettings} className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity">
+                Salvar
+              </button>
+            </div>
           </div>
         </div>
       )}

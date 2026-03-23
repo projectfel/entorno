@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { adminService } from "@/services/admin";
 import { storesService } from "@/services/stores";
-import { isStoreOpen, getStoreStatusLabel } from "@/lib/storeStatus";
+import { getStoreStatusLabel } from "@/lib/storeStatus";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { z } from "zod";
+import type { Tables } from "@/integrations/supabase/types";
 
 const createStoreSchema = z.object({
   email: z.string().trim().email("E-mail inválido"),
@@ -26,11 +27,31 @@ const createStoreSchema = z.object({
   whatsapp: z.string().trim().min(8, "WhatsApp inválido").regex(/^[\d+\s()-]+$/, "WhatsApp: apenas números"),
 });
 
+interface ProfileWithRole {
+  id: string;
+  user_id: string;
+  display_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  address: string | null;
+  created_at: string;
+  user_roles: { role: string }[];
+}
+
+interface OrderWithStore {
+  id: string;
+  created_at: string;
+  status: string;
+  total: number;
+  items: unknown;
+  stores?: { name: string } | null;
+}
+
 const Admin = () => {
   const queryClient = useQueryClient();
-  const [stores, setStores] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [stores, setStores] = useState<Tables<"stores">[]>([]);
+  const [users, setUsers] = useState<ProfileWithRole[]>([]);
+  const [orders, setOrders] = useState<OrderWithStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -41,7 +62,7 @@ const Admin = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Edit store state
-  const [editingStore, setEditingStore] = useState<any | null>(null);
+  const [editingStore, setEditingStore] = useState<Tables<"stores"> | null>(null);
   const [editStoreForm, setEditStoreForm] = useState({
     name: "", whatsapp: "", address: "", neighborhood: "", description: "",
   });
@@ -59,23 +80,9 @@ const Admin = () => {
         adminService.getAllOrders(),
       ]);
 
-      if (storesResult.status === "fulfilled") {
-        setStores(storesResult.value || []);
-      } else {
-        setStores([]);
-      }
-
-      if (usersResult.status === "fulfilled") {
-        setUsers(usersResult.value || []);
-      } else {
-        setUsers([]);
-      }
-
-      if (ordersResult.status === "fulfilled") {
-        setOrders(ordersResult.value || []);
-      } else {
-        setOrders([]);
-      }
+      setStores(storesResult.status === "fulfilled" ? (storesResult.value || []) : []);
+      setUsers(usersResult.status === "fulfilled" ? (usersResult.value || []) as ProfileWithRole[] : []);
+      setOrders(ordersResult.status === "fulfilled" ? (ordersResult.value || []) as OrderWithStore[] : []);
     } finally {
       setLoading(false);
     }
@@ -102,8 +109,8 @@ const Admin = () => {
       setShowCreate(false);
       setForm({ email: "", password: "", displayName: "", storeName: "", whatsapp: "", address: "", neighborhood: "Lagoa Azul" });
       loadData();
-    } catch (err: any) {
-      const msg = err?.message || "Erro ao criar mercado";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao criar mercado";
       if (msg.includes("already been registered") || msg.includes("already registered")) {
         toast.error("Este e-mail já está cadastrado. Use outro e-mail.", { id: toastId });
       } else {
@@ -121,7 +128,7 @@ const Admin = () => {
     try {
       await adminService.updateStoreStatus(storeId, newStatus as "open" | "closed" | "maintenance");
       toast.success(newStatus === "open" ? "Mercado aberto!" : "Mercado fechado!", { id: toastId });
-      setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)));
+      setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)) as Tables<"stores">[]);
       queryClient.invalidateQueries({ queryKey: ["stores"] });
     } catch {
       toast.error("Erro ao alterar status", { id: toastId });
@@ -134,14 +141,14 @@ const Admin = () => {
     try {
       await adminService.updateStoreStatus(storeId, newStatus as "open" | "closed" | "maintenance");
       toast.success(newStatus === "maintenance" ? "Mercado desativado!" : "Mercado reativado!", { id: toastId });
-      setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)));
+      setStores((prev) => prev.map((s) => (s.id === storeId ? { ...s, status: newStatus } : s)) as Tables<"stores">[]);
       queryClient.invalidateQueries({ queryKey: ["stores"] });
     } catch {
       toast.error("Erro ao alterar status", { id: toastId });
     }
   };
 
-  const handleEditStore = (store: any) => {
+  const handleEditStore = (store: Tables<"stores">) => {
     setEditingStore(store);
     setEditStoreForm({
       name: store.name || "",
@@ -158,7 +165,7 @@ const Admin = () => {
     try {
       await storesService.update(editingStore.id, editStoreForm);
       toast.success("Mercado atualizado!", { id: toastId });
-      setStores((prev) => prev.map((s) => s.id === editingStore.id ? { ...s, ...editStoreForm } : s));
+      setStores((prev) => prev.map((s) => s.id === editingStore.id ? { ...s, ...editStoreForm } : s) as Tables<"stores">[]);
       setEditingStore(null);
       queryClient.invalidateQueries({ queryKey: ["stores"] });
     } catch {
@@ -203,13 +210,14 @@ const Admin = () => {
     (u) => !searchUsers || (u.display_name || "").toLowerCase().includes(searchUsers.toLowerCase())
   );
 
-  // Client count: ALL profiles count as registered users
+  // Metrics - count ALL users properly
   const totalRegisteredUsers = users.length;
   const totalClients = users.filter((u) => {
     const role = u.user_roles?.[0]?.role;
     return !role || role === "user";
   }).length;
   const totalLojistas = users.filter((u) => u.user_roles?.[0]?.role === "moderator").length;
+  const totalAdmins = users.filter((u) => u.user_roles?.[0]?.role === "admin").length;
 
   const roleIcon = (role: string) => {
     if (role === "admin") return <ShieldCheck className="h-3.5 w-3.5" />;
@@ -284,11 +292,10 @@ const Admin = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">{totalRegisteredUsers}</p>
-              <p className="text-sm text-muted-foreground">
-                Cadastrados
-                <span className="text-xs text-muted-foreground/80 block">
-                  Todos os usuários registrados
-                </span>
+              <p className="text-sm text-muted-foreground">Total de Usuários</p>
+              <p className="text-[10px] text-muted-foreground/80">
+                {totalAdmins > 0 && `${totalAdmins} admin${totalAdmins > 1 ? "s" : ""} · `}
+                {totalLojistas} lojista{totalLojistas !== 1 ? "s" : ""} · {totalClients} cliente{totalClients !== 1 ? "s" : ""}
               </p>
             </div>
           </div>
@@ -300,12 +307,7 @@ const Admin = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">{totalClients}</p>
-              <p className="text-sm text-muted-foreground">
-                Clientes
-                <span className="text-xs text-muted-foreground/80 block">
-                  {totalLojistas} lojistas
-                </span>
-              </p>
+              <p className="text-sm text-muted-foreground">Clientes</p>
             </div>
           </div>
         </div>
@@ -324,9 +326,9 @@ const Admin = () => {
 
       <Tabs defaultValue="stores">
         <TabsList className="mb-6">
-          <TabsTrigger value="stores">Mercados</TabsTrigger>
-          <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="orders">Pedidos</TabsTrigger>
+          <TabsTrigger value="stores">Mercados ({stores.length})</TabsTrigger>
+          <TabsTrigger value="users">Usuários ({users.length})</TabsTrigger>
+          <TabsTrigger value="orders">Pedidos ({orders.length})</TabsTrigger>
         </TabsList>
 
         {/* Stores Tab */}
@@ -343,16 +345,16 @@ const Admin = () => {
               />
             </div>
             <div className="flex gap-2">
-              {[
+              {([
                 { value: "all", label: "Todos" },
                 { value: "open", label: "Abertos" },
                 { value: "closed", label: "Fechados" },
                 { value: "maintenance", label: "Desativados" },
-              ].map((opt) => (
+              ] as const).map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setStatusFilter(opt.value as typeof statusFilter)}
+                  onClick={() => setStatusFilter(opt.value)}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                     statusFilter === opt.value
                       ? "bg-primary text-primary-foreground border-primary"
@@ -383,7 +385,7 @@ const Admin = () => {
                         <p className="text-xs text-muted-foreground">
                           {s.neighborhood || "Sem bairro"}
                           {s.opens_at && s.closes_at && (
-                            <span className="ml-2">• {s.opens_at} - {s.closes_at}</span>
+                            <span className="ml-2">• {String(s.opens_at).slice(0, 5)} - {String(s.closes_at).slice(0, 5)}</span>
                           )}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -521,7 +523,7 @@ const Admin = () => {
                         <p className="text-xs text-muted-foreground">
                           {new Date(o.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </p>
-                        <p className="font-medium text-card-foreground mt-1">{(o as { stores?: { name: string } }).stores?.name || "Loja"}</p>
+                        <p className="font-medium text-card-foreground mt-1">{o.stores?.name || "Loja"}</p>
                         <p className="text-sm text-muted-foreground">{orderItems.length} {orderItems.length === 1 ? "item" : "itens"}</p>
                       </div>
                       <div className="text-right">

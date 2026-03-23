@@ -12,6 +12,15 @@ const statusMap: Record<string, { label: string; color: string; icon: React.Elem
   cancelled: { label: "Cancelado", color: "bg-destructive text-destructive-foreground", icon: XCircle },
 };
 
+interface OrderItem {
+  nome?: string;
+  name?: string;
+  quantidade?: number;
+  quantity?: number;
+  preco?: number;
+  price?: number;
+}
+
 interface OrderWithStore {
   id: string;
   created_at: string;
@@ -47,13 +56,18 @@ const MeusPedidos = () => {
           <Package className="mx-auto h-12 w-12 mb-4 opacity-40" />
           <p className="text-lg font-medium">Nenhum pedido ainda</p>
           <p className="text-sm mt-1">Seus pedidos aparecerão aqui</p>
+          <Link to="/" className="mt-4 inline-block text-sm text-primary hover:underline">
+            Explorar mercados
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">
           {(orders as OrderWithStore[]).map((order) => {
             const st = statusMap[order.status] || statusMap.pending;
             const Icon = st.icon;
-            const items = Array.isArray(order.items) ? order.items : [];
+            const items: OrderItem[] = Array.isArray(order.items)
+              ? (order.items as OrderItem[])
+              : [];
             return (
               <div key={order.id} className="rounded-xl border bg-card p-4 transition-colors hover:bg-secondary/30">
                 <div className="flex items-start justify-between">
@@ -63,9 +77,6 @@ const MeusPedidos = () => {
                     </p>
                     <p className="font-medium text-card-foreground mt-1">
                       {order.stores?.name || "Loja"}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {items.length} {items.length === 1 ? "item" : "itens"}
                     </p>
                   </div>
                   <div className="text-right">
@@ -78,6 +89,26 @@ const MeusPedidos = () => {
                     </p>
                   </div>
                 </div>
+                {/* Render item details */}
+                {items.length > 0 && (
+                  <div className="mt-3 border-t pt-3 space-y-1">
+                    {items.map((item, idx) => {
+                      const name = item.nome || item.name || "Item";
+                      const qty = item.quantidade || item.quantity || 1;
+                      const price = item.preco || item.price;
+                      return (
+                        <div key={idx} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{name} ×{qty}</span>
+                          {price && (
+                            <span className="text-card-foreground font-medium">
+                              R$ {(Number(price) * qty).toFixed(2).replace(".", ",")}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 {order.notes && (
                   <p className="text-xs text-muted-foreground mt-2 border-t pt-2">📝 {order.notes}</p>
                 )}
