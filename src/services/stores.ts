@@ -1,15 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const storesService = {
+  /** Public listing — hides phone/whatsapp via DB view */
   async getAll() {
     const { data, error } = await supabase
-      .from("stores")
+      .from("stores_public" as any)
       .select("*")
       .order("name");
     if (error) throw error;
     return data;
   },
 
+  /** Full details — only owner/admin get phone via RLS on stores table */
   async getById(id: string) {
     const { data, error } = await supabase
       .from("stores")
