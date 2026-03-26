@@ -234,7 +234,7 @@ const CompraVoz = () => {
           return {
             storeId: store.id,
             storeName: store.name,
-            storeWhatsapp: store.whatsapp,
+            storeWhatsapp: (store as Record<string, unknown>).whatsapp as string || "",
             total: cartItems.reduce((sum, ci) => sum + ci.price * ci.quantity, 0),
             items: cartItems,
             missingItems,
