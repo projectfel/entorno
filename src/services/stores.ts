@@ -1,35 +1,40 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const storesService = {
-  /** Public listing — uses stores_public view (no phone/whatsapp) */
+  /** List all stores — authenticated users see full data, anon gets public view */
   async getAll() {
     const { data, error } = await supabase
-      .from("stores_public")
+      .from("stores")
       .select("*")
       .order("name");
-    if (error) throw error;
+    // If RLS blocks (anon user), fallback to public view
+    if (error) {
+      const { data: publicData, error: publicError } = await supabase
+        .from("stores_public")
+        .select("*")
+        .order("name");
+      if (publicError) throw publicError;
+      return publicData;
+    }
     return data;
   },
 
-  /** Public store detail — uses stores_public view (no sensitive data) */
+  /** Store detail */
   async getById(id: string) {
-    const { data, error } = await supabase
-      .from("stores_public")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  },
-
-  /** Full details with phone/whatsapp — only for authenticated owner/admin */
-  async getFullById(id: string) {
     const { data, error } = await supabase
       .from("stores")
       .select("*")
       .eq("id", id)
       .maybeSingle();
-    if (error) throw error;
+    if (error) {
+      const { data: publicData, error: publicError } = await supabase
+        .from("stores_public")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (publicError) throw publicError;
+      return publicData;
+    }
     return data;
   },
 
