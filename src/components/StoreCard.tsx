@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { getStoreStatusLabel } from "@/lib/storeStatus";
 import type { Tables } from "@/integrations/supabase/types";
 
+type PublicStore = Tables<"stores"> | Tables<"stores_public">;
+
 interface StoreCardProps {
-  store: Tables<"stores">;
+  store: PublicStore;
 }
 
 const StoreCard = memo(({ store }: StoreCardProps) => {
