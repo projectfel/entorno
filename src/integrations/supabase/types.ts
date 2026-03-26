@@ -122,6 +122,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "combos_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       loyalty_points: {
@@ -160,6 +167,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "loyalty_points_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       loyalty_rewards: {
@@ -196,6 +210,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_rewards_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -240,6 +261,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -306,6 +334,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -435,7 +470,72 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      stores_public: {
+        Row: {
+          address: string | null
+          closes_at: string | null
+          cover_image: string | null
+          created_at: string | null
+          delivery_fee: number | null
+          delivery_time_max: number | null
+          delivery_time_min: number | null
+          description: string | null
+          id: string | null
+          logo_url: string | null
+          min_order: number | null
+          name: string | null
+          neighborhood: string | null
+          opens_at: string | null
+          owner_id: string | null
+          rating: number | null
+          status: Database["public"]["Enums"]["store_status"] | null
+          total_ratings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          closes_at?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          delivery_fee?: number | null
+          delivery_time_max?: number | null
+          delivery_time_min?: number | null
+          description?: string | null
+          id?: string | null
+          logo_url?: string | null
+          min_order?: number | null
+          name?: string | null
+          neighborhood?: string | null
+          opens_at?: string | null
+          owner_id?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["store_status"] | null
+          total_ratings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          closes_at?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          delivery_fee?: number | null
+          delivery_time_max?: number | null
+          delivery_time_min?: number | null
+          description?: string | null
+          id?: string | null
+          logo_url?: string | null
+          min_order?: number | null
+          name?: string | null
+          neighborhood?: string | null
+          opens_at?: string | null
+          owner_id?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["store_status"] | null
+          total_ratings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
