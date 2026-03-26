@@ -183,7 +183,7 @@ const CompraVoz = () => {
             return {
               storeId: p.store_id,
               storeName: store?.name || "Loja",
-              storeWhatsapp: store?.whatsapp || "",
+              storeWhatsapp: (store as Record<string, unknown>)?.whatsapp as string || "",
               productId: p.id,
               productName: p.name,
               price: Number(p.price),
