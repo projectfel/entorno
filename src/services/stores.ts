@@ -10,6 +10,7 @@ export const storesService = {
     return data;
   },
 
+  /** Full details — only owner/admin get phone via RLS on stores table */
   async getById(id: string) {
     const { data, error } = await supabase
       .from("stores")
