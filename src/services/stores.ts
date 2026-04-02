@@ -1,22 +1,28 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const storesService = {
-  /** List all stores — authenticated users see full data, anon gets public view */
+  /** List all stores — use public view for listings (safe for anon + auth) */
   async getAll() {
-    const { data, error } = await supabase
-      .from("stores")
-      .select("*")
-      .order("name");
-    // If RLS blocks (anon user), fallback to public view
-    if (error) {
-      const { data: publicData, error: publicError } = await supabase
-        .from("stores_public")
+    // Always use stores_public for listings — it excludes sensitive fields
+    // and is accessible to both anon and authenticated users
+    const { data: session } = await supabase.auth.getSession();
+    
+    if (session?.session) {
+      // Authenticated: try full table first
+      const { data, error } = await supabase
+        .from("stores")
         .select("*")
         .order("name");
-      if (publicError) throw publicError;
-      return publicData;
+      if (!error && data && data.length > 0) return data;
     }
-    return data;
+    
+    // Fallback (anon or empty result): use public view
+    const { data: publicData, error: publicError } = await supabase
+      .from("stores_public")
+      .select("*")
+      .order("name");
+    if (publicError) throw publicError;
+    return publicData;
   },
 
   /** Store detail */
