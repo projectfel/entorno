@@ -25,6 +25,11 @@ const ProductCard = memo(({ product, storeId, storeName, storeWhatsapp }: Produc
   const quantity = cartItem?.quantidade || 0;
 
   const handleAdd = () => {
+    if (!user) {
+      toast.info("Faça login para adicionar produtos ao carrinho");
+      navigate("/login");
+      return;
+    }
     const cartProduct: CartProduct = {
       id: product.id,
       nome: product.name,
