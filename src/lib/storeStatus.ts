@@ -53,6 +53,16 @@ export function getStoreStatusLabel(store: {
     return { label: "Desativado", isOpen: false };
   }
 
+  if (store.status === "closed") {
+    return { label: "Fechado", isOpen: false };
+  }
+
+  const hasHours = !!store.opens_at && !!store.closes_at;
   const open = isStoreOpen(store);
+
+  if (hasHours && !open) {
+    return { label: `Fechado · Abre às ${store.opens_at!.slice(0, 5)}`, isOpen: false };
+  }
+
   return { label: open ? "Aberto" : "Fechado", isOpen: open };
 }
