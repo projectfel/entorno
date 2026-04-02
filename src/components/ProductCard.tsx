@@ -1,9 +1,12 @@
 import { memo, useState } from "react";
 import { Plus, Check, Minus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import type { CartProduct } from "@/types";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Tables<"products"> & { categories?: { name: string; icon: string | null } | null };
