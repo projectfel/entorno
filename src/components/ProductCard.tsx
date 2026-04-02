@@ -17,6 +17,8 @@ interface ProductCardProps {
 
 const ProductCard = memo(({ product, storeId, storeName, storeWhatsapp }: ProductCardProps) => {
   const { addItem, items, updateQuantity, removeItem } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [added, setAdded] = useState(false);
 
   const cartItem = items.find((i) => i.id === product.id && i.marketId === storeId);
