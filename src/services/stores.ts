@@ -25,23 +25,27 @@ export const storesService = {
     return publicData;
   },
 
-  /** Store detail */
+  /** Store detail — works for both anon and authenticated users */
   async getById(id: string) {
-    const { data, error } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-    if (error) {
-      const { data: publicData, error: publicError } = await supabase
-        .from("stores_public")
+    const { data: session } = await supabase.auth.getSession();
+
+    if (session?.session) {
+      const { data, error } = await supabase
+        .from("stores")
         .select("*")
         .eq("id", id)
         .maybeSingle();
-      if (publicError) throw publicError;
-      return publicData;
+      if (!error && data) return data;
     }
-    return data;
+
+    // Fallback for anon users or empty RLS result
+    const { data: publicData, error: publicError } = await supabase
+      .from("stores_public")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (publicError) throw publicError;
+    return publicData;
   },
 
   async getByOwner(ownerId: string) {

@@ -16,14 +16,17 @@ export function isStoreOpen(store: {
   closes_at?: string | null;
 }): boolean {
   if (store.status === "maintenance") return false;
+  if (store.status === "closed") return false;
 
+  // status === "open"
   const hasHours = !!store.opens_at && !!store.closes_at;
 
   if (hasHours) {
-    if (store.status === "closed") return false;
-
+    // Usar horário de Brasília (UTC-3) para consistência
     const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const brasiliaOffset = -3 * 60; // UTC-3 em minutos
+    const utcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+    const currentMinutes = ((utcMinutes + brasiliaOffset) % 1440 + 1440) % 1440;
 
     const [openH, openM] = store.opens_at!.split(":").map(Number);
     const [closeH, closeM] = store.closes_at!.split(":").map(Number);
@@ -37,8 +40,8 @@ export function isStoreOpen(store: {
     return currentMinutes >= opensMinutes && currentMinutes < closesMinutes;
   }
 
-  // Sem horário configurado, usa apenas o status manual
-  return store.status === "open";
+  // Sem horário configurado, status "open" → sempre aberto
+  return true;
 }
 
 export function getStoreStatusLabel(store: {
