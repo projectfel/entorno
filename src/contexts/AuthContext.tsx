@@ -59,6 +59,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          // Invalidate stores cache so authenticated data loads
+          if (event === "SIGNED_IN") {
+            queryClient.invalidateQueries({ queryKey: ["stores"] });
+          }
           setTimeout(() => fetchRole(session.user.id), 0);
         } else {
           setRole(null);
