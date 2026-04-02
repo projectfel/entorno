@@ -1,9 +1,12 @@
 import { memo, useState } from "react";
 import { Plus, Check, Minus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 import type { CartProduct } from "@/types";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Tables<"products"> & { categories?: { name: string; icon: string | null } | null };
@@ -14,12 +17,19 @@ interface ProductCardProps {
 
 const ProductCard = memo(({ product, storeId, storeName, storeWhatsapp }: ProductCardProps) => {
   const { addItem, items, updateQuantity, removeItem } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [added, setAdded] = useState(false);
 
   const cartItem = items.find((i) => i.id === product.id && i.marketId === storeId);
   const quantity = cartItem?.quantidade || 0;
 
   const handleAdd = () => {
+    if (!user) {
+      toast.info("Faça login para adicionar produtos ao carrinho");
+      navigate("/login");
+      return;
+    }
     const cartProduct: CartProduct = {
       id: product.id,
       nome: product.name,
