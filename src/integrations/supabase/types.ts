@@ -486,7 +486,6 @@ export type Database = {
           name: string | null
           neighborhood: string | null
           opens_at: string | null
-          owner_id: string | null
           rating: number | null
           status: Database["public"]["Enums"]["store_status"] | null
           total_ratings: number | null
@@ -507,7 +506,6 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           opens_at?: string | null
-          owner_id?: string | null
           rating?: number | null
           status?: Database["public"]["Enums"]["store_status"] | null
           total_ratings?: number | null
@@ -528,7 +526,6 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           opens_at?: string | null
-          owner_id?: string | null
           rating?: number | null
           status?: Database["public"]["Enums"]["store_status"] | null
           total_ratings?: number | null
