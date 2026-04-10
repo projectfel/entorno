@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { adminService } from "@/services/admin";
 import { storesService } from "@/services/stores";
-import { getStoreStatusLabel } from "@/lib/storeStatus";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";

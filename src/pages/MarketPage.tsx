@@ -166,8 +166,8 @@ const MarketPage = () => {
               <ProductCard
                 key={p.id}
                 product={p}
-                storeId={store.id}
-                storeName={store.name}
+                storeId={store.id ?? ""}
+                storeName={store.name ?? ""}
                 storeWhatsapp={(store as Record<string, unknown>).whatsapp as string ?? ""}
               />
             ))}
