@@ -375,7 +375,12 @@ const Admin = () => {
           ) : (
             <div className="space-y-2">
               {filteredStores.map((s) => {
-                const storeOpenStatus = getStoreStatusLabel(s);
+                const statusLabels: Record<string, { label: string; color: string }> = {
+                  open: { label: "Aberto", color: "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]" },
+                  closed: { label: "Fechado", color: "bg-muted text-muted-foreground" },
+                  maintenance: { label: "Desativado", color: "bg-destructive/20 text-destructive" },
+                };
+                const statusInfo = statusLabels[s.status] || statusLabels.closed;
                 return (
                   <div key={s.id} className="flex items-center justify-between rounded-xl border bg-card p-4 transition-colors hover:bg-secondary/50">
                     <div className="flex items-center gap-3">
@@ -394,14 +399,8 @@ const Admin = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge
-                        className={`border-0 text-[10px] ${
-                          storeOpenStatus.isOpen
-                            ? "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {storeOpenStatus.label}
+                      <Badge className={`border-0 text-[10px] ${statusInfo.color}`}>
+                        {statusInfo.label}
                       </Badge>
                       {s.status !== "maintenance" && (
                         <button
