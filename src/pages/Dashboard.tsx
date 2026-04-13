@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Package, Store, Clock, Plus, Trash2, ArrowLeft, Pencil, Search, Image as ImageIcon, Save, X, ShoppingBag, Settings, Upload, BarChart3, Tag, Star, StarOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";

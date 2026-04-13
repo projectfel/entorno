@@ -8,6 +8,7 @@ import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import SEOHead from "@/components/SEOHead";
 
 const MarketPage = () => {
   const { id } = useParams();
