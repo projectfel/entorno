@@ -8,6 +8,7 @@ import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import SEOHead from "@/components/SEOHead";
 
 const MarketPage = () => {
   const { id } = useParams();
@@ -48,6 +49,17 @@ const MarketPage = () => {
 
   return (
     <main className="pb-8">
+      <SEOHead
+        title={store.name ?? "Mercado"}
+        description={store.description ?? `Confira os produtos de ${store.name} no Entorno`}
+        image={store.cover_image ?? undefined}
+        url={`https://entorno.lovable.app/mercado/${store.id}`}
+        type="store"
+        storeName={store.name ?? undefined}
+        storeAddress={store.address ?? undefined}
+        storeRating={store.rating ?? undefined}
+        storeReviewCount={store.total_ratings ?? undefined}
+      />
       {/* Banner */}
       <div className="relative h-60 sm:h-80 overflow-hidden">
         {store.cover_image ? (

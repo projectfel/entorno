@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Package, Store, Clock, Plus, Trash2, ArrowLeft, Pencil, Search, Image as ImageIcon, Save, X, ShoppingBag, Settings, Upload, BarChart3, Tag, Star, StarOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { useUploadImage } from "@/hooks/useUploadImage";
 import { useCategories } from "@/hooks/useCategories";
 import { storesService } from "@/services/stores";
 import { isStoreOpen, getStoreStatusLabel } from "@/lib/storeStatus";
+import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { DashboardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,9 @@ const Dashboard = () => {
   const deleteProduct = useDeleteProduct();
   const updateOrderStatus = useUpdateOrderStatus();
   const { upload, uploading } = useUploadImage();
+
+  // Realtime notifications for new orders
+  useRealtimeOrders(store?.id);
 
   const [busca, setBusca] = useState("");
   const [showAdd, setShowAdd] = useState(false);
