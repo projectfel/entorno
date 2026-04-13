@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, Store, Users, ShoppingBag, Plus, X, Search,
   Shield, ShieldCheck, User as UserIcon, Eye, EyeOff, UserCheck,
-  Trash2, Pencil,
+  Trash2, Pencil, TrendingUp, DollarSign, BarChart3,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
