@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UploadResult {
   url: string;
@@ -9,6 +10,7 @@ interface UploadResult {
 export function useUploadImage() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { user } = useAuth();
 
   const resizeImage = useCallback(
     (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.8): Promise<Blob> => {
@@ -43,6 +45,7 @@ export function useUploadImage() {
 
   const upload = useCallback(
     async (file: File, folder: string): Promise<UploadResult> => {
+      if (!user) throw new Error("Usuário não autenticado");
       setUploading(true);
       setProgress(10);
       try {
@@ -50,7 +53,7 @@ export function useUploadImage() {
         setProgress(40);
 
         const ext = "webp";
-        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const fileName = `${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
         const { error } = await supabase.storage.from("images").upload(fileName, resized, {
           contentType: "image/webp",
