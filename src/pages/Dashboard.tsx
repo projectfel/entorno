@@ -9,6 +9,7 @@ import { useUploadImage } from "@/hooks/useUploadImage";
 import { useCategories } from "@/hooks/useCategories";
 import { storesService } from "@/services/stores";
 import { isStoreOpen, getStoreStatusLabel } from "@/lib/storeStatus";
+import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { DashboardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,9 @@ const Dashboard = () => {
   const deleteProduct = useDeleteProduct();
   const updateOrderStatus = useUpdateOrderStatus();
   const { upload, uploading } = useUploadImage();
+
+  // Realtime notifications for new orders
+  useRealtimeOrders(store?.id);
 
   const [busca, setBusca] = useState("");
   const [showAdd, setShowAdd] = useState(false);
