@@ -209,7 +209,7 @@ const Admin = () => {
     (u) => !searchUsers || (u.display_name || "").toLowerCase().includes(searchUsers.toLowerCase())
   );
 
-  // Metrics - count ALL users properly
+  // Metrics
   const totalRegisteredUsers = users.length;
   const totalClients = users.filter((u) => {
     const role = u.user_roles?.[0]?.role;
@@ -217,6 +217,13 @@ const Admin = () => {
   }).length;
   const totalLojistas = users.filter((u) => u.user_roles?.[0]?.role === "moderator").length;
   const totalAdmins = users.filter((u) => u.user_roles?.[0]?.role === "admin").length;
+
+  // Business metrics
+  const deliveredOrders = orders.filter((o) => o.status === "delivered");
+  const gmv = deliveredOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const avgTicket = deliveredOrders.length > 0 ? gmv / deliveredOrders.length : 0;
+  const pendingOrders = orders.filter((o) => o.status === "pending").length;
+  const openStores = stores.filter((s) => s.status === "open").length;
 
   const roleIcon = (role: string) => {
     if (role === "admin") return <ShieldCheck className="h-3.5 w-3.5" />;
