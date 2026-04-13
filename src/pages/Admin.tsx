@@ -278,27 +278,69 @@ const Admin = () => {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-4">
+      {/* Stats Row 1 - Core */}
+      <div className="mb-4 grid gap-4 sm:grid-cols-4">
         <div className="rounded-xl border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Store className="h-5 w-5 text-primary" />
+              <DollarSign className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{stores.length}</p>
-              <p className="text-sm text-muted-foreground">Mercados</p>
+              <p className="text-2xl font-bold text-card-foreground">R$ {gmv.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</p>
+              <p className="text-sm text-muted-foreground">GMV Total</p>
+              <p className="text-[10px] text-muted-foreground/80">{deliveredOrders.length} pedidos entregues</p>
             </div>
           </div>
         </div>
         <div className="rounded-xl border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-              <Users className="h-5 w-5 text-accent" />
+              <TrendingUp className="h-5 w-5 text-accent" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">R$ {avgTicket.toFixed(2).replace(".", ",")}</p>
+              <p className="text-sm text-muted-foreground">Ticket Médio</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10">
+              <Store className="h-5 w-5 text-[hsl(var(--success))]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{stores.length}</p>
+              <p className="text-sm text-muted-foreground">Mercados</p>
+              <p className="text-[10px] text-muted-foreground/80">{openStores} aberto{openStores !== 1 ? "s" : ""} agora</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+              <ShoppingBag className="h-5 w-5 text-accent" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{orders.length}</p>
+              <p className="text-sm text-muted-foreground">Pedidos</p>
+              {pendingOrders > 0 && (
+                <p className="text-[10px] font-medium text-accent">{pendingOrders} pendente{pendingOrders !== 1 ? "s" : ""}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Row 2 - Users */}
+      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Users className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">{totalRegisteredUsers}</p>
-              <p className="text-sm text-muted-foreground">Total de Usuários</p>
+              <p className="text-sm text-muted-foreground">Usuários</p>
               <p className="text-[10px] text-muted-foreground/80">
                 {totalAdmins > 0 && `${totalAdmins} admin${totalAdmins > 1 ? "s" : ""} · `}
                 {totalLojistas} lojista{totalLojistas !== 1 ? "s" : ""} · {totalClients} cliente{totalClients !== 1 ? "s" : ""}
@@ -319,12 +361,12 @@ const Admin = () => {
         </div>
         <div className="rounded-xl border bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10">
-              <ShoppingBag className="h-5 w-5 text-[hsl(var(--success))]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <BarChart3 className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{orders.length}</p>
-              <p className="text-sm text-muted-foreground">Pedidos</p>
+              <p className="text-2xl font-bold text-card-foreground">{stores.length > 0 ? (orders.length / stores.length).toFixed(1) : "0"}</p>
+              <p className="text-sm text-muted-foreground">Pedidos/Mercado</p>
             </div>
           </div>
         </div>
