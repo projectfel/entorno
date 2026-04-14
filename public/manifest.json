@@ -1,0 +1,26 @@
+{
+  "name": "O Entorno — Mercados do seu bairro",
+  "short_name": "Entorno",
+  "description": "Compare preços e faça suas compras nos mercados do seu bairro.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "food"],
+  "lang": "pt-BR"
+}
