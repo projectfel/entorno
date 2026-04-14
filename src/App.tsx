@@ -29,8 +29,15 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
-      retry: 2,
+      retry: (failureCount, error: any) => {
+        // Don't retry on auth errors or not found
+        if (error?.code === "PGRST116" || error?.status === 401 || error?.status === 403) return false;
+        return failureCount < 2;
+      },
       refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });

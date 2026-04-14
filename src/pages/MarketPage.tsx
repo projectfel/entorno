@@ -180,7 +180,7 @@ const MarketPage = () => {
                 product={p}
                 storeId={store.id ?? ""}
                 storeName={store.name ?? ""}
-                storeWhatsapp={(store as Record<string, unknown>).whatsapp as string ?? ""}
+                storeWhatsapp={(store as any).whatsapp ?? ""}
               />
             ))}
           </div>

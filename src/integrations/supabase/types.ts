@@ -486,10 +486,12 @@ export type Database = {
           name: string | null
           neighborhood: string | null
           opens_at: string | null
+          phone: string | null
           rating: number | null
           status: Database["public"]["Enums"]["store_status"] | null
           total_ratings: number | null
           updated_at: string | null
+          whatsapp: string | null
         }
         Insert: {
           address?: string | null
@@ -506,10 +508,12 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           opens_at?: string | null
+          phone?: string | null
           rating?: number | null
           status?: Database["public"]["Enums"]["store_status"] | null
           total_ratings?: number | null
           updated_at?: string | null
+          whatsapp?: string | null
         }
         Update: {
           address?: string | null
@@ -526,10 +530,12 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           opens_at?: string | null
+          phone?: string | null
           rating?: number | null
           status?: Database["public"]["Enums"]["store_status"] | null
           total_ratings?: number | null
           updated_at?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
