@@ -28,7 +28,19 @@
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+        // Only register SW in production (not in iframes or preview hosts)
+        var isInIframe = false;
+        try { isInIframe = window.self !== window.top; } catch(e) { isInIframe = true; }
+        var isPreview = location.hostname.includes('id-preview--') || location.hostname.includes('lovableproject.com');
+        
+        if (!isInIframe && !isPreview) {
+          window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js'); });
+        } else {
+          // Unregister any stale SW in preview/iframe
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) { r.unregister(); });
+          });
+        }
       }
     </script>
   </body>
