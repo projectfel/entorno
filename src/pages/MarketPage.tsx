@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Star, Clock, MapPin, Truck, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Star, Clock, MapPin, Truck, Heart, Share2, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useStore } from "@/hooks/useStores";
 import { useProducts } from "@/hooks/useProducts";
@@ -128,6 +128,19 @@ const MarketPage = () => {
             Taxa: R$ {Number(store.delivery_fee ?? 0).toFixed(2).replace(".", ",")}
           </span>
         </div>
+
+        {/* WhatsApp button */}
+        {store.whatsapp && (
+          <a
+            href={`https://wa.me/${store.whatsapp.replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white shadow-md hover:bg-[#1da851] transition-colors"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Falar pelo WhatsApp
+          </a>
+        )}
       </div>
 
       {/* Categories filter */}
