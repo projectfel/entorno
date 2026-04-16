@@ -8,7 +8,7 @@ import StoreCard from "@/components/StoreCard";
 import FeaturedDeals from "@/components/FeaturedDeals";
 import GlobalSearch from "@/components/GlobalSearch";
 import { StoreCardSkeleton } from "@/components/StoreSkeleton";
-import { Store, TrendingUp } from "lucide-react";
+import { Store, Sparkles, ArrowRight, Tag } from "lucide-react";
 
 const Index = () => {
   const [busca, setBusca] = useState("");
