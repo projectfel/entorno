@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,30 +12,43 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
-import Index from "./pages/Index";
-import MarketPage from "./pages/MarketPage";
-import Dashboard from "./pages/Dashboard";
-import MeusPedidos from "./pages/MeusPedidos";
-import Perfil from "./pages/Perfil";
-import TermosDeUso from "./pages/TermosDeUso";
-import Login from "./pages/Login";
-import Cadastro from "./pages/Cadastro";
-import EsqueciSenha from "./pages/EsqueciSenha";
-import ResetPassword from "./pages/ResetPassword";
-import Admin from "./pages/Admin";
-import CompraVoz from "./pages/CompraVoz";
-import NotFound from "./pages/NotFound";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy-loaded routes — reduces initial bundle for 50k+ concurrent users
+const Index = lazy(() => import("./pages/Index"));
+const MarketPage = lazy(() => import("./pages/MarketPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const MeusPedidos = lazy(() => import("./pages/MeusPedidos"));
+const Perfil = lazy(() => import("./pages/Perfil"));
+const TermosDeUso = lazy(() => import("./pages/TermosDeUso"));
+const Login = lazy(() => import("./pages/Login"));
+const Cadastro = lazy(() => import("./pages/Cadastro"));
+const EsqueciSenha = lazy(() => import("./pages/EsqueciSenha"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Admin = lazy(() => import("./pages/Admin"));
+const CompraVoz = lazy(() => import("./pages/CompraVoz"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const PageFallback = () => (
+  <div className="mx-auto max-w-6xl px-4 py-12 space-y-4">
+    <Skeleton className="h-60 w-full rounded-2xl" />
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {[1, 2, 3].map((i) => <Skeleton key={i} className="h-48 rounded-2xl" />)}
+    </div>
+  </div>
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,
+      staleTime: 5 * 60 * 1000,     // 5 min — reduces refetch storms at scale
+      gcTime: 15 * 60 * 1000,       // 15 min — keep cache longer to reduce DB pressure
       retry: (failureCount, error: any) => {
-        // Don't retry on auth errors or not found
         if (error?.code === "PGRST116" || error?.status === 401 || error?.status === 403) return false;
         return failureCount < 2;
       },
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
     },
     mutations: {
       retry: 1,
@@ -54,6 +68,7 @@ const App = () => (
               <Header />
               <CartDrawer />
               <AnalyticsProvider>
+              <Suspense fallback={<PageFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/mercado/:id" element={<MarketPage />} />
@@ -72,6 +87,7 @@ const App = () => (
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
               </AnalyticsProvider>
               <Footer />
             </BrowserRouter>
