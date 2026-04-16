@@ -3,6 +3,7 @@ import { useStores } from "@/hooks/useStores";
 import { useFeaturedProducts } from "@/hooks/useProducts";
 import { isStoreOpen } from "@/lib/storeStatus";
 import HeroSection from "@/components/HeroSection";
+import { Link } from "react-router-dom";
 import StoreCard from "@/components/StoreCard";
 import FeaturedDeals from "@/components/FeaturedDeals";
 import GlobalSearch from "@/components/GlobalSearch";
