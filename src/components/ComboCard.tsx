@@ -20,7 +20,7 @@ const ComboCard = memo(({ combo, onAdd }: ComboCardProps) => {
   const desconto = Math.round(((combo.precoOriginal - combo.precoCombo) / combo.precoOriginal) * 100);
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-[hsl(var(--gold))]/20 bg-gradient-to-br from-card via-card to-[hsl(var(--gold))]/5 p-5 transition-all duration-500 hover:shadow-[0_8px_40px_-12px_hsl(var(--gold)/0.25)] hover:-translate-y-1">
+    <div className="group relative overflow-hidden rounded-xl border border-[hsl(var(--gold))]/20 bg-gradient-to-br from-card via-card to-[hsl(var(--gold))]/5 p-3.5 transition-all duration-500 hover:shadow-[0_8px_40px_-12px_hsl(var(--gold)/0.25)] hover:-translate-y-0.5">
       {/* Premium shimmer line */}
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[hsl(var(--gold))] to-transparent opacity-40 group-hover:opacity-80 transition-opacity duration-700" />
 
