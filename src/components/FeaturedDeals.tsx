@@ -32,26 +32,26 @@ const FeaturedDeals = () => {
   if (!combos || combos.length === 0) return null;
 
   return (
-    <section className="relative mx-auto max-w-6xl px-4 mt-14">
+    <section className="relative mx-auto max-w-6xl px-4 mt-10">
       {/* Premium section header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(38,60%,45%)] shadow-lg shadow-[hsl(var(--gold))]/20">
-            <Crown className="h-5 w-5 text-white" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(38,60%,45%)] shadow-md shadow-[hsl(var(--gold))]/20">
+            <Crown className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-extrabold text-foreground tracking-tight">
+            <h2 className="text-base font-extrabold text-foreground tracking-tight leading-tight">
               Combos da Semana
             </h2>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-[hsl(var(--gold))]" />
-              Ofertas exclusivas dos mercados parceiros
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Sparkles className="h-2.5 w-2.5 text-[hsl(var(--gold))]" />
+              Ofertas exclusivas dos parceiros
             </p>
           </div>
         </div>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {combos.map((combo) => (
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        {combos.slice(0, 4).map((combo) => (
           <ComboCard
             key={combo.id}
             combo={{
