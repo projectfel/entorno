@@ -30,42 +30,31 @@ const ComboCard = memo(({ combo, onAdd }: ComboCardProps) => {
         -{desconto}%
       </Badge>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <Sparkles className="h-3.5 w-3.5 text-[hsl(var(--gold))]" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[hsl(var(--gold))]">Oferta Exclusiva</span>
+          <div className="flex items-center gap-1 mb-0.5">
+            <Sparkles className="h-3 w-3 text-[hsl(var(--gold))]" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[hsl(var(--gold))]">Oferta Exclusiva</span>
           </div>
-          <h4 className="font-bold text-card-foreground text-lg leading-tight">{combo.nome}</h4>
-          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{combo.descricao}</p>
+          <h4 className="font-bold text-card-foreground text-sm leading-tight line-clamp-1">{combo.nome}</h4>
+          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{combo.descricao}</p>
         </div>
 
-        {combo.itens.length > 0 && (
-          <div className="space-y-1">
-            {combo.itens.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--gold))]" />
-                {item}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between pt-3 border-t border-[hsl(var(--gold))]/10">
-          <div>
-            <span className="text-2xl font-extrabold bg-gradient-to-r from-primary to-[hsl(var(--gold))] bg-clip-text text-transparent">
+        <div className="flex items-center justify-between pt-2 border-t border-[hsl(var(--gold))]/10">
+          <div className="flex flex-col leading-tight">
+            <span className="text-base font-extrabold bg-gradient-to-r from-primary to-[hsl(var(--gold))] bg-clip-text text-transparent">
               R$ {combo.precoCombo.toFixed(2).replace(".", ",")}
             </span>
-            <span className="text-sm text-muted-foreground line-through ml-2">
+            <span className="text-[10px] text-muted-foreground line-through">
               R$ {combo.precoOriginal.toFixed(2).replace(".", ",")}
             </span>
           </div>
           {onAdd && (
             <button
               onClick={onAdd}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-[hsl(150,32%,30%)] px-4 py-2 text-sm font-medium text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-95"
+              className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-primary to-[hsl(150,32%,30%)] px-3 py-1.5 text-xs font-medium text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-95"
             >
-              <ShoppingCart className="h-4 w-4" />
+              <ShoppingCart className="h-3.5 w-3.5" />
               Pedir
             </button>
           )}
