@@ -60,9 +60,6 @@ export const adminService = {
     }
     // Delete products
     await supabase.from("products").delete().eq("store_id", storeId);
-    // Delete loyalty data
-    await supabase.from("loyalty_points").delete().eq("store_id", storeId);
-    await supabase.from("loyalty_rewards").delete().eq("store_id", storeId);
     // Then delete the store
     const { error } = await supabase.from("stores").delete().eq("id", storeId);
     if (error) throw error;
