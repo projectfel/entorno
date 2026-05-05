@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -124,96 +154,6 @@ export type Database = {
           },
           {
             foreignKeyName: "combos_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      loyalty_points: {
-        Row: {
-          created_at: string
-          id: string
-          lifetime_points: number
-          points: number
-          store_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          lifetime_points?: number
-          points?: number
-          store_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          lifetime_points?: number
-          points?: number
-          store_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "loyalty_points_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "loyalty_points_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      loyalty_rewards: {
-        Row: {
-          active: boolean | null
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-          points_required: number
-          store_id: string
-        }
-        Insert: {
-          active?: boolean | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-          points_required: number
-          store_id: string
-        }
-        Update: {
-          active?: boolean | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-          points_required?: number
-          store_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "loyalty_rewards_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "loyalty_rewards_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores_public"
