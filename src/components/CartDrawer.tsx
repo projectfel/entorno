@@ -66,8 +66,8 @@ const CartDrawer = () => {
     return items[0].marketWhatsapp;
   };
 
-  const finalizarPedido = () => {
-    if (items.length === 0) return;
+  const finalizarPedido = async () => {
+    if (items.length === 0 || submitting) return;
 
     if (!user) {
       toast.error("Faça login para finalizar seu pedido", {
@@ -84,6 +84,33 @@ const CartDrawer = () => {
       return;
     }
 
+    const storeId = items[0].marketId;
+    const storeName = items[0].marketNome;
+    const orderItems = items.map((i) => ({
+      product_id: i.id,
+      name: i.nome,
+      quantity: i.quantidade,
+      price: i.preco,
+    }));
+
+    setSubmitting(true);
+    let createdId: string | null = null;
+    try {
+      const created = await createOrder.mutateAsync({
+        store_id: storeId,
+        user_id: user.id,
+        items: orderItems as never,
+        total,
+        notes: userAddress ? `Endereço: ${userAddress}` : undefined,
+      });
+      createdId = created.id;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao registrar pedido";
+      toast.error("Não foi possível registrar o pedido", { description: msg });
+      setSubmitting(false);
+      return;
+    }
+
     const msg = buildMessage();
     const whatsapp = getWhatsappNumber();
     const cleanNumber = whatsapp.replace(/[^0-9+]/g, "");
@@ -92,15 +119,26 @@ const CartDrawer = () => {
     const newWindow = window.open(url, "_blank");
 
     if (!newWindow || newWindow.closed) {
-      navigator.clipboard.writeText(msg).then(() => {
+      try {
+        await navigator.clipboard.writeText(msg);
         toast.success("Mensagem copiada! Cole no WhatsApp do mercado.", {
           description: `WhatsApp: ${whatsapp}`,
           duration: 8000,
         });
-      }).catch(() => {
+      } catch {
         toast.info(`Envie a mensagem para o WhatsApp: ${whatsapp}`, { duration: 8000 });
-      });
+      }
     }
+
+    setConfirmedOrder({
+      id: createdId,
+      storeName,
+      total,
+      itemCount,
+    });
+    setIsOpen(false);
+    clearCart();
+    setSubmitting(false);
   };
 
   const copyMessage = async () => {
