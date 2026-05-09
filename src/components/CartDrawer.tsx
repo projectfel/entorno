@@ -157,6 +157,7 @@ const CartDrawer = () => {
   const currentStoreName = items.length > 0 ? items[0].marketNome : null;
 
   return (
+    <>
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
