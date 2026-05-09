@@ -241,11 +241,11 @@ const CartDrawer = () => {
               </div>
               <button
                 onClick={finalizarPedido}
-                disabled={!hasAddress && !!user}
+                disabled={(!hasAddress && !!user) || submitting}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--whatsapp))] py-4 text-[hsl(var(--whatsapp-foreground))] font-bold text-lg transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <MessageCircle className="h-5 w-5" />
-                Finalizar via WhatsApp
+                {submitting ? "Enviando..." : "Finalizar via WhatsApp"}
               </button>
               <button
                 onClick={copyMessage}
