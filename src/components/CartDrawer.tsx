@@ -266,6 +266,8 @@ const CartDrawer = () => {
         )}
       </SheetContent>
     </Sheet>
+    <CheckoutConfirmation order={confirmedOrder} onClose={() => setConfirmedOrder(null)} />
+    </>
   );
 };
 
