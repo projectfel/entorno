@@ -6,13 +6,25 @@ import { authService } from "@/services/auth";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { useCreateOrder } from "@/hooks/useOrders";
+import { CheckoutConfirmation } from "@/components/CheckoutConfirmation";
+
+interface ConfirmedOrder {
+  id: string;
+  storeName: string;
+  total: number;
+  itemCount: number;
+}
 
 const CartDrawer = () => {
-  const { items, total, isOpen, setIsOpen, updateQuantity, removeItem, clearCart } = useCart();
+  const { items, total, itemCount, isOpen, setIsOpen, updateQuantity, removeItem, clearCart } = useCart();
   const { user } = useAuth();
+  const createOrder = useCreateOrder();
   const [copied, setCopied] = useState(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrder | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
