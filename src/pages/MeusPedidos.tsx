@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserOrders } from "@/hooks/useOrders";
+import { useRealtimeUserOrders } from "@/hooks/useRealtimeUserOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Package, Clock, CheckCircle, XCircle } from "lucide-react";
@@ -34,6 +35,7 @@ interface OrderWithStore {
 const MeusPedidos = () => {
   const { user } = useAuth();
   const { data: orders, isLoading } = useUserOrders(user?.id);
+  useRealtimeUserOrders(user?.id);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-6">
