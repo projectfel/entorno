@@ -6,13 +6,25 @@ import { authService } from "@/services/auth";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { useCreateOrder } from "@/hooks/useOrders";
+import { CheckoutConfirmation } from "@/components/CheckoutConfirmation";
+
+interface ConfirmedOrder {
+  id: string;
+  storeName: string;
+  total: number;
+  itemCount: number;
+}
 
 const CartDrawer = () => {
-  const { items, total, isOpen, setIsOpen, updateQuantity, removeItem, clearCart } = useCart();
+  const { items, total, itemCount, isOpen, setIsOpen, updateQuantity, removeItem, clearCart } = useCart();
   const { user } = useAuth();
+  const createOrder = useCreateOrder();
   const [copied, setCopied] = useState(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrder | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -54,8 +66,8 @@ const CartDrawer = () => {
     return items[0].marketWhatsapp;
   };
 
-  const finalizarPedido = () => {
-    if (items.length === 0) return;
+  const finalizarPedido = async () => {
+    if (items.length === 0 || submitting) return;
 
     if (!user) {
       toast.error("Faça login para finalizar seu pedido", {
@@ -72,6 +84,33 @@ const CartDrawer = () => {
       return;
     }
 
+    const storeId = items[0].marketId;
+    const storeName = items[0].marketNome;
+    const orderItems = items.map((i) => ({
+      product_id: i.id,
+      name: i.nome,
+      quantity: i.quantidade,
+      price: i.preco,
+    }));
+
+    setSubmitting(true);
+    let createdId: string | null = null;
+    try {
+      const created = await createOrder.mutateAsync({
+        store_id: storeId,
+        user_id: user.id,
+        items: orderItems as never,
+        total,
+        notes: userAddress ? `Endereço: ${userAddress}` : undefined,
+      });
+      createdId = created.id;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao registrar pedido";
+      toast.error("Não foi possível registrar o pedido", { description: msg });
+      setSubmitting(false);
+      return;
+    }
+
     const msg = buildMessage();
     const whatsapp = getWhatsappNumber();
     const cleanNumber = whatsapp.replace(/[^0-9+]/g, "");
@@ -80,15 +119,26 @@ const CartDrawer = () => {
     const newWindow = window.open(url, "_blank");
 
     if (!newWindow || newWindow.closed) {
-      navigator.clipboard.writeText(msg).then(() => {
+      try {
+        await navigator.clipboard.writeText(msg);
         toast.success("Mensagem copiada! Cole no WhatsApp do mercado.", {
           description: `WhatsApp: ${whatsapp}`,
           duration: 8000,
         });
-      }).catch(() => {
+      } catch {
         toast.info(`Envie a mensagem para o WhatsApp: ${whatsapp}`, { duration: 8000 });
-      });
+      }
     }
+
+    setConfirmedOrder({
+      id: createdId,
+      storeName,
+      total,
+      itemCount,
+    });
+    setIsOpen(false);
+    clearCart();
+    setSubmitting(false);
   };
 
   const copyMessage = async () => {
@@ -107,6 +157,7 @@ const CartDrawer = () => {
   const currentStoreName = items.length > 0 ? items[0].marketNome : null;
 
   return (
+    <>
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
@@ -191,11 +242,11 @@ const CartDrawer = () => {
               </div>
               <button
                 onClick={finalizarPedido}
-                disabled={!hasAddress && !!user}
+                disabled={(!hasAddress && !!user) || submitting}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--whatsapp))] py-4 text-[hsl(var(--whatsapp-foreground))] font-bold text-lg transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <MessageCircle className="h-5 w-5" />
-                Finalizar via WhatsApp
+                {submitting ? "Enviando..." : "Finalizar via WhatsApp"}
               </button>
               <button
                 onClick={copyMessage}
@@ -215,6 +266,8 @@ const CartDrawer = () => {
         )}
       </SheetContent>
     </Sheet>
+    <CheckoutConfirmation order={confirmedOrder} onClose={() => setConfirmedOrder(null)} />
+    </>
   );
 };
 
