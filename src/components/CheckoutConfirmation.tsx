@@ -22,12 +22,12 @@ export const CheckoutConfirmation = ({ order, onClose }: Props) => {
 
   return (
     <Dialog open={!!order} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md animate-scale-in">
         <DialogHeader>
-          <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--success))]/10">
+          <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--success))]/10 animate-pop">
             <CheckCircle2 className="h-10 w-10 text-[hsl(var(--success))]" strokeWidth={2.2} />
           </div>
-          <DialogTitle className="text-center text-xl text-foreground">
+          <DialogTitle className="text-center text-xl text-foreground animate-fade-in">
             Pedido enviado com sucesso!
           </DialogTitle>
         </DialogHeader>
