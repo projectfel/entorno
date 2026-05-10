@@ -280,7 +280,7 @@ const Admin = () => {
 
       {/* Stats Row 1 - Core */}
       <div className="mb-4 grid gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <DollarSign className="h-5 w-5 text-primary" />
@@ -292,7 +292,7 @@ const Admin = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
               <TrendingUp className="h-5 w-5 text-accent" />
@@ -303,7 +303,7 @@ const Admin = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10">
               <Store className="h-5 w-5 text-[hsl(var(--success))]" />
@@ -315,7 +315,7 @@ const Admin = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
               <ShoppingBag className="h-5 w-5 text-accent" />
@@ -333,7 +333,7 @@ const Admin = () => {
 
       {/* Stats Row 2 - Users */}
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <Users className="h-5 w-5 text-primary" />
@@ -348,7 +348,7 @@ const Admin = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <UserCheck className="h-5 w-5 text-primary" />
@@ -359,7 +359,7 @@ const Admin = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <BarChart3 className="h-5 w-5 text-primary" />
@@ -564,7 +564,7 @@ const Admin = () => {
               {orders.map((o) => {
                 const orderItems = Array.isArray(o.items) ? o.items : [];
                 return (
-                  <div key={o.id} className="rounded-xl border bg-card p-4">
+                  <div key={o.id} className="rounded-xl border bg-card p-4 animate-fade-in transition-all hover:shadow-md hover:-translate-y-0.5">
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-xs text-muted-foreground">

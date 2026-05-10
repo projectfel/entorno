@@ -184,7 +184,7 @@ const CartDrawer = () => {
               {items.map((item) => (
                 <div
                   key={`${item.marketId}-${item.id}`}
-                  className="flex items-center gap-3 rounded-lg border bg-card p-3"
+                  className="flex items-center gap-3 rounded-lg border bg-card p-3 animate-fade-in transition-shadow hover:shadow-md"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-card-foreground truncate">{item.nome}</p>
