@@ -16,6 +16,7 @@ import {
 const Header = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, role, signOut, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
