@@ -1,7 +1,8 @@
-import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck, Mic, UserPen } from "lucide-react";
+import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck, Mic, UserPen, Moon, Sun } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/hooks/useTheme";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
