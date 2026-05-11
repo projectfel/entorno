@@ -1,7 +1,8 @@
-import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck, Mic, UserPen } from "lucide-react";
+import { MapPin, ShoppingCart, User, LogOut, LogIn, Package, LayoutDashboard, ShieldCheck, Mic, UserPen, Moon, Sun } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/hooks/useTheme";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
@@ -15,6 +16,7 @@ import {
 const Header = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, role, signOut, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -43,6 +45,13 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+          >
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
           {!loading && user && (
             <Link
               to="/compra-voz"
