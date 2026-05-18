@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
+import Sparkline from "@/components/Sparkline";
 
 const createStoreSchema = z.object({
   email: z.string().trim().email("E-mail inválido"),
