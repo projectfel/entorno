@@ -226,6 +226,34 @@ const Admin = () => {
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const openStores = stores.filter((s) => s.status === "open").length;
 
+  // GMV last 7 days (sparkline)
+  const gmv7d = (() => {
+    const days: number[] = new Array(7).fill(0);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    deliveredOrders.forEach((o) => {
+      const t = new Date(o.created_at).getTime();
+      const diffDays = Math.floor((startOfToday - new Date(new Date(t).getFullYear(), new Date(t).getMonth(), new Date(t).getDate()).getTime()) / 86400000);
+      if (diffDays >= 0 && diffDays < 7) {
+        days[6 - diffDays] += Number(o.total || 0);
+      }
+    });
+    return days;
+  })();
+  const orders7d = (() => {
+    const days: number[] = new Array(7).fill(0);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    orders.forEach((o) => {
+      const t = new Date(o.created_at).getTime();
+      const diffDays = Math.floor((startOfToday - new Date(new Date(t).getFullYear(), new Date(t).getMonth(), new Date(t).getDate()).getTime()) / 86400000);
+      if (diffDays >= 0 && diffDays < 7) {
+        days[6 - diffDays] += 1;
+      }
+    });
+    return days;
+  })();
+
   const roleIcon = (role: string) => {
     if (role === "admin") return <ShieldCheck className="h-3.5 w-3.5" />;
     if (role === "moderator") return <Shield className="h-3.5 w-3.5" />;
