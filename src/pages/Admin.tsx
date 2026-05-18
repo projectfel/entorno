@@ -314,10 +314,13 @@ const Admin = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <DollarSign className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">R$ {gmv.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-end justify-between gap-2">
+                <p className="text-2xl font-bold text-card-foreground truncate">R$ {gmv.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</p>
+                <Sparkline data={gmv7d} className="shrink-0" />
+              </div>
               <p className="text-sm text-muted-foreground">GMV Total</p>
-              <p className="text-[10px] text-muted-foreground/80">{deliveredOrders.length} pedidos entregues</p>
+              <p className="text-[10px] text-muted-foreground/80">{deliveredOrders.length} entregues · 7d</p>
             </div>
           </div>
         </div>
