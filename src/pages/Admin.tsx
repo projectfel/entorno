@@ -352,8 +352,11 @@ const Admin = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
               <ShoppingBag className="h-5 w-5 text-accent" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">{orders.length}</p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-end justify-between gap-2">
+                <p className="text-2xl font-bold text-card-foreground">{orders.length}</p>
+                <Sparkline data={orders7d} className="shrink-0" />
+              </div>
               <p className="text-sm text-muted-foreground">Pedidos</p>
               {pendingOrders > 0 && (
                 <p className="text-[10px] font-medium text-accent">{pendingOrders} pendente{pendingOrders !== 1 ? "s" : ""}</p>
