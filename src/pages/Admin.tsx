@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
+import Sparkline from "@/components/Sparkline";
 
 const createStoreSchema = z.object({
   email: z.string().trim().email("E-mail inválido"),
@@ -225,6 +226,34 @@ const Admin = () => {
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const openStores = stores.filter((s) => s.status === "open").length;
 
+  // GMV last 7 days (sparkline)
+  const gmv7d = (() => {
+    const days: number[] = new Array(7).fill(0);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    deliveredOrders.forEach((o) => {
+      const t = new Date(o.created_at).getTime();
+      const diffDays = Math.floor((startOfToday - new Date(new Date(t).getFullYear(), new Date(t).getMonth(), new Date(t).getDate()).getTime()) / 86400000);
+      if (diffDays >= 0 && diffDays < 7) {
+        days[6 - diffDays] += Number(o.total || 0);
+      }
+    });
+    return days;
+  })();
+  const orders7d = (() => {
+    const days: number[] = new Array(7).fill(0);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    orders.forEach((o) => {
+      const t = new Date(o.created_at).getTime();
+      const diffDays = Math.floor((startOfToday - new Date(new Date(t).getFullYear(), new Date(t).getMonth(), new Date(t).getDate()).getTime()) / 86400000);
+      if (diffDays >= 0 && diffDays < 7) {
+        days[6 - diffDays] += 1;
+      }
+    });
+    return days;
+  })();
+
   const roleIcon = (role: string) => {
     if (role === "admin") return <ShieldCheck className="h-3.5 w-3.5" />;
     if (role === "moderator") return <Shield className="h-3.5 w-3.5" />;
@@ -285,10 +314,13 @@ const Admin = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <DollarSign className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">R$ {gmv.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-end justify-between gap-2">
+                <p className="text-2xl font-bold text-card-foreground truncate">R$ {gmv.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</p>
+                <Sparkline data={gmv7d} className="shrink-0" />
+              </div>
               <p className="text-sm text-muted-foreground">GMV Total</p>
-              <p className="text-[10px] text-muted-foreground/80">{deliveredOrders.length} pedidos entregues</p>
+              <p className="text-[10px] text-muted-foreground/80">{deliveredOrders.length} entregues · 7d</p>
             </div>
           </div>
         </div>
@@ -320,8 +352,11 @@ const Admin = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
               <ShoppingBag className="h-5 w-5 text-accent" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">{orders.length}</p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-end justify-between gap-2">
+                <p className="text-2xl font-bold text-card-foreground">{orders.length}</p>
+                <Sparkline data={orders7d} className="shrink-0" />
+              </div>
               <p className="text-sm text-muted-foreground">Pedidos</p>
               {pendingOrders > 0 && (
                 <p className="text-[10px] font-medium text-accent">{pendingOrders} pendente{pendingOrders !== 1 ? "s" : ""}</p>
