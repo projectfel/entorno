@@ -96,11 +96,50 @@ const MarketPage = () => {
               <Badge variant="outline" className="bg-card/50 backdrop-blur-sm border-border/50">
                 {store.delivery_time_min ?? 30}-{store.delivery_time_max ?? 60} min
               </Badge>
+              {store.year_founded && (
+                <Badge variant="outline" className="bg-card/50 backdrop-blur-sm border-border/50 hidden sm:inline-flex">
+                  <CalendarDays className="h-3 w-3 mr-1" />Desde {store.year_founded}
+                </Badge>
+              )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{store.name}</h1>
-            {store.description && <p className="text-sm text-muted-foreground mt-1">{store.description}</p>}
           </div>
         </div>
+      </div>
+
+      {/* Identity header (logo + name + verified + slogan) */}
+      <div className="mx-auto max-w-6xl px-4 -mt-12 sm:-mt-14 relative z-10">
+        <div className="flex items-end gap-4">
+          <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden bg-card border-4 border-background shadow-lg shrink-0">
+            {store.logo_url ? (
+              <img src={store.logo_url} alt={`Logo ${store.name}`} className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-secondary text-3xl">🏪</div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0 pb-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">{store.name}</h1>
+              {store.verified && (
+                <span title="Loja verificada" className="inline-flex items-center text-primary">
+                  <BadgeCheck className="h-6 w-6" fill="currentColor" stroke="hsl(var(--primary-foreground))" />
+                </span>
+              )}
+            </div>
+            {store.slogan && (
+              <p className="text-sm sm:text-base text-muted-foreground italic mt-0.5">"{store.slogan}"</p>
+            )}
+          </div>
+        </div>
+        {store.description && (
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl">{store.description}</p>
+        )}
+        {store.specialties && store.specialties.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {store.specialties.map((s) => (
+              <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Stats row */}
@@ -120,7 +159,7 @@ const MarketPage = () => {
           {store.opens_at && store.closes_at && (
             <span className="flex items-center gap-1 text-muted-foreground shrink-0">
               <Clock className="h-3.5 w-3.5" />
-              {store.opens_at} - {store.closes_at}
+              {String(store.opens_at).slice(0,5)} - {String(store.closes_at).slice(0,5)}
             </span>
           )}
           <span className="flex items-center gap-1 text-muted-foreground shrink-0">
@@ -129,19 +168,53 @@ const MarketPage = () => {
           </span>
         </div>
 
-        {/* WhatsApp button */}
-        {store.whatsapp && (
-          <a
-            href={`https://wa.me/${store.whatsapp.replace(/\D/g, "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white shadow-md hover:bg-[#1da851] transition-colors"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Falar pelo WhatsApp
-          </a>
-        )}
+        {/* Contact / social row */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {store.whatsapp && (
+            <a
+              href={`https://wa.me/${store.whatsapp.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white shadow-md hover:bg-[#1da851] transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
+          )}
+          {store.phone && (
+            <a
+              href={`tel:${store.phone.replace(/\D/g, "")}`}
+              className="inline-flex items-center gap-2 rounded-xl bg-card border px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-secondary transition-colors"
+            >
+              <Phone className="h-4 w-4" />
+              Ligar
+            </a>
+          )}
+          {store.instagram && (
+            <a
+              href={store.instagram.startsWith("http") ? store.instagram : `https://instagram.com/${store.instagram.replace(/^@/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-card border text-card-foreground hover:bg-secondary transition-colors"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+          )}
+          {store.facebook && (
+            <a
+              href={store.facebook.startsWith("http") ? store.facebook : `https://facebook.com/${store.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-card border text-card-foreground hover:bg-secondary transition-colors"
+            >
+              <Facebook className="h-4 w-4" />
+            </a>
+          )}
+        </div>
       </div>
+
 
       {/* Categories filter */}
       {categories.length > 0 && (
