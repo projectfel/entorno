@@ -55,7 +55,9 @@ const Dashboard = () => {
     name: "", description: "", address: "", phone: "", whatsapp: "",
     opens_at: "", closes_at: "", delivery_fee: "", min_order: "",
     delivery_time_min: "", delivery_time_max: "",
+    slogan: "", instagram: "", facebook: "", year_founded: "", specialties: "",
   });
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const resetForm = () => {
@@ -88,6 +90,22 @@ const Dashboard = () => {
       toast.success("Foto de capa atualizada!", { id: toastId });
     } catch {
       toast.error("Erro ao atualizar foto de capa", { id: toastId });
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !store) return;
+    const toastId = toast.loading("Atualizando logo...");
+    try {
+      const result = await upload(file, `logos/${store.id}`);
+      await storesService.update(store.id, { logo_url: result.url });
+      setLogoPreview(result.url);
+      queryClient.invalidateQueries({ queryKey: ["my-stores"] });
+      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      toast.success("Logo atualizada!", { id: toastId });
+    } catch {
+      toast.error("Erro ao atualizar logo", { id: toastId });
     }
   };
 
@@ -194,8 +212,14 @@ const Dashboard = () => {
       closes_at: store.closes_at ? String(store.closes_at).slice(0, 5) : "", delivery_fee: String(store.delivery_fee ?? 0),
       min_order: String(store.min_order ?? 0), delivery_time_min: String(store.delivery_time_min ?? 30),
       delivery_time_max: String(store.delivery_time_max ?? 60),
+      slogan: (store as any).slogan ?? "",
+      instagram: (store as any).instagram ?? "",
+      facebook: (store as any).facebook ?? "",
+      year_founded: (store as any).year_founded ? String((store as any).year_founded) : "",
+      specialties: ((store as any).specialties ?? []).join(", "),
     });
     setCoverPreview(store.cover_image || null);
+    setLogoPreview((store as any).logo_url || null);
     setShowSettings(true);
   };
 
@@ -209,6 +233,11 @@ const Dashboard = () => {
         closes_at: storeForm.closes_at || null, delivery_fee: parseFloat(storeForm.delivery_fee) || 0,
         min_order: parseFloat(storeForm.min_order) || 0, delivery_time_min: parseInt(storeForm.delivery_time_min) || 30,
         delivery_time_max: parseInt(storeForm.delivery_time_max) || 60,
+        slogan: storeForm.slogan.trim() || null,
+        instagram: storeForm.instagram.trim() || null,
+        facebook: storeForm.facebook.trim() || null,
+        year_founded: storeForm.year_founded ? parseInt(storeForm.year_founded) : null,
+        specialties: storeForm.specialties.split(",").map((s) => s.trim()).filter(Boolean),
       });
       toast.success("Configurações salvas!", { id: toastId });
       setShowSettings(false);
@@ -606,23 +635,43 @@ const Dashboard = () => {
               </ul>
             </div>
 
-            <div className="mb-4">
-              <label className="text-xs font-medium text-muted-foreground">Foto de capa</label>
-              <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
-                {coverPreview ? (
-                  <img src={coverPreview} alt="Capa" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="h-full w-full bg-secondary flex items-center justify-center">
-                    <span className="text-3xl">🏪</span>
-                  </div>
-                )}
-                <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2.5 py-1.5 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
-                  <Upload className="h-3 w-3" />
-                  {uploading ? "Enviando..." : "Alterar"}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
-                </label>
+            <div className="mb-4 grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Foto de capa</label>
+                <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
+                  {coverPreview ? (
+                    <img src={coverPreview} alt="Capa" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full bg-secondary flex items-center justify-center">
+                      <span className="text-3xl">🏪</span>
+                    </div>
+                  )}
+                  <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2.5 py-1.5 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
+                    <Upload className="h-3 w-3" />
+                    {uploading ? "Enviando..." : "Alterar"}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Logo</label>
+                <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full bg-secondary flex items-center justify-center">
+                      <span className="text-2xl">🏷️</span>
+                    </div>
+                  )}
+                  <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2 py-1 text-[10px] font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
+                    <Upload className="h-3 w-3" />
+                    {uploading ? "..." : "Alterar"}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploading} />
+                  </label>
+                </div>
               </div>
             </div>
+
 
             <div className="space-y-3">
               <div>
@@ -634,6 +683,33 @@ const Dashboard = () => {
                 <label className="text-xs font-medium text-muted-foreground">Descrição</label>
                 <textarea value={storeForm.description} onChange={(e) => setStoreForm((f) => ({ ...f, description: e.target.value }))}
                   className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" rows={2} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Slogan / frase da marca</label>
+                <input type="text" maxLength={120} placeholder="Ex: Frescor que faz a diferença" value={storeForm.slogan} onChange={(e) => setStoreForm((f) => ({ ...f, slogan: e.target.value }))}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Especialidades (separadas por vírgula)</label>
+                <input type="text" placeholder="Hortifruti, Orgânicos, Padaria" value={storeForm.specialties} onChange={(e) => setStoreForm((f) => ({ ...f, specialties: e.target.value }))}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Ano de fundação</label>
+                  <input type="number" placeholder="2010" value={storeForm.year_founded} onChange={(e) => setStoreForm((f) => ({ ...f, year_founded: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Instagram</label>
+                  <input type="text" placeholder="@sualoja" value={storeForm.instagram} onChange={(e) => setStoreForm((f) => ({ ...f, instagram: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Facebook</label>
+                  <input type="text" placeholder="sualoja" value={storeForm.facebook} onChange={(e) => setStoreForm((f) => ({ ...f, facebook: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Endereço</label>
