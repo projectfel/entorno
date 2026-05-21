@@ -55,7 +55,9 @@ const Dashboard = () => {
     name: "", description: "", address: "", phone: "", whatsapp: "",
     opens_at: "", closes_at: "", delivery_fee: "", min_order: "",
     delivery_time_min: "", delivery_time_max: "",
+    slogan: "", instagram: "", facebook: "", year_founded: "", specialties: "",
   });
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const resetForm = () => {
