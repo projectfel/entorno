@@ -438,7 +438,9 @@ export type Database = {
           delivery_time_max: number | null
           delivery_time_min: number | null
           description: string | null
+          facebook: string | null
           id: string | null
+          instagram: string | null
           logo_url: string | null
           min_order: number | null
           name: string | null
@@ -446,10 +448,14 @@ export type Database = {
           opens_at: string | null
           phone: string | null
           rating: number | null
+          slogan: string | null
+          specialties: string[] | null
           status: Database["public"]["Enums"]["store_status"] | null
           total_ratings: number | null
           updated_at: string | null
+          verified: boolean | null
           whatsapp: string | null
+          year_founded: number | null
         }
         Insert: {
           address?: string | null
@@ -460,7 +466,9 @@ export type Database = {
           delivery_time_max?: number | null
           delivery_time_min?: number | null
           description?: string | null
+          facebook?: string | null
           id?: string | null
+          instagram?: string | null
           logo_url?: string | null
           min_order?: number | null
           name?: string | null
@@ -468,10 +476,14 @@ export type Database = {
           opens_at?: string | null
           phone?: string | null
           rating?: number | null
+          slogan?: string | null
+          specialties?: string[] | null
           status?: Database["public"]["Enums"]["store_status"] | null
           total_ratings?: number | null
           updated_at?: string | null
+          verified?: boolean | null
           whatsapp?: string | null
+          year_founded?: number | null
         }
         Update: {
           address?: string | null
@@ -482,7 +494,9 @@ export type Database = {
           delivery_time_max?: number | null
           delivery_time_min?: number | null
           description?: string | null
+          facebook?: string | null
           id?: string | null
+          instagram?: string | null
           logo_url?: string | null
           min_order?: number | null
           name?: string | null
@@ -490,10 +504,14 @@ export type Database = {
           opens_at?: string | null
           phone?: string | null
           rating?: number | null
+          slogan?: string | null
+          specialties?: string[] | null
           status?: Database["public"]["Enums"]["store_status"] | null
           total_ratings?: number | null
           updated_at?: string | null
+          verified?: boolean | null
           whatsapp?: string | null
+          year_founded?: number | null
         }
         Relationships: []
       }
