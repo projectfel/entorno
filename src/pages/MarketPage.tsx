@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Star, Clock, MapPin, Truck, Heart, Share2, MessageCircle } from "lucide-react";
+import { ArrowLeft, Star, Clock, MapPin, Truck, Heart, Share2, MessageCircle, BadgeCheck, Instagram, Facebook, Phone, CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { useStore } from "@/hooks/useStores";
 import { useProducts } from "@/hooks/useProducts";
