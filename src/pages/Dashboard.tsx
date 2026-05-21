@@ -685,6 +685,33 @@ const Dashboard = () => {
                   className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" rows={2} />
               </div>
               <div>
+                <label className="text-xs font-medium text-muted-foreground">Slogan / frase da marca</label>
+                <input type="text" maxLength={120} placeholder="Ex: Frescor que faz a diferença" value={storeForm.slogan} onChange={(e) => setStoreForm((f) => ({ ...f, slogan: e.target.value }))}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Especialidades (separadas por vírgula)</label>
+                <input type="text" placeholder="Hortifruti, Orgânicos, Padaria" value={storeForm.specialties} onChange={(e) => setStoreForm((f) => ({ ...f, specialties: e.target.value }))}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Ano de fundação</label>
+                  <input type="number" placeholder="2010" value={storeForm.year_founded} onChange={(e) => setStoreForm((f) => ({ ...f, year_founded: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Instagram</label>
+                  <input type="text" placeholder="@sualoja" value={storeForm.instagram} onChange={(e) => setStoreForm((f) => ({ ...f, instagram: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Facebook</label>
+                  <input type="text" placeholder="sualoja" value={storeForm.facebook} onChange={(e) => setStoreForm((f) => ({ ...f, facebook: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+              </div>
+              <div>
                 <label className="text-xs font-medium text-muted-foreground">Endereço</label>
                 <input type="text" value={storeForm.address} onChange={(e) => setStoreForm((f) => ({ ...f, address: e.target.value }))}
                   className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
