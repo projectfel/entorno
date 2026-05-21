@@ -217,6 +217,11 @@ const Dashboard = () => {
         closes_at: storeForm.closes_at || null, delivery_fee: parseFloat(storeForm.delivery_fee) || 0,
         min_order: parseFloat(storeForm.min_order) || 0, delivery_time_min: parseInt(storeForm.delivery_time_min) || 30,
         delivery_time_max: parseInt(storeForm.delivery_time_max) || 60,
+        slogan: storeForm.slogan.trim() || null,
+        instagram: storeForm.instagram.trim() || null,
+        facebook: storeForm.facebook.trim() || null,
+        year_founded: storeForm.year_founded ? parseInt(storeForm.year_founded) : null,
+        specialties: storeForm.specialties.split(",").map((s) => s.trim()).filter(Boolean),
       });
       toast.success("Configurações salvas!", { id: toastId });
       setShowSettings(false);
