@@ -93,6 +93,22 @@ const Dashboard = () => {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !store) return;
+    const toastId = toast.loading("Atualizando logo...");
+    try {
+      const result = await upload(file, `logos/${store.id}`);
+      await storesService.update(store.id, { logo_url: result.url });
+      setLogoPreview(result.url);
+      queryClient.invalidateQueries({ queryKey: ["my-stores"] });
+      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      toast.success("Logo atualizada!", { id: toastId });
+    } catch {
+      toast.error("Erro ao atualizar logo", { id: toastId });
+    }
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.price || !store) return;
     const toastId = toast.loading(editingId ? "Atualizando produto..." : "Criando produto...");
