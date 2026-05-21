@@ -328,7 +328,9 @@ export type Database = {
           delivery_time_max: number | null
           delivery_time_min: number | null
           description: string | null
+          facebook: string | null
           id: string
+          instagram: string | null
           logo_url: string | null
           min_order: number | null
           name: string
@@ -337,10 +339,14 @@ export type Database = {
           owner_id: string
           phone: string | null
           rating: number | null
+          slogan: string | null
+          specialties: string[]
           status: Database["public"]["Enums"]["store_status"]
           total_ratings: number | null
           updated_at: string
+          verified: boolean
           whatsapp: string
+          year_founded: number | null
         }
         Insert: {
           address?: string | null
@@ -351,7 +357,9 @@ export type Database = {
           delivery_time_max?: number | null
           delivery_time_min?: number | null
           description?: string | null
+          facebook?: string | null
           id?: string
+          instagram?: string | null
           logo_url?: string | null
           min_order?: number | null
           name: string
@@ -360,10 +368,14 @@ export type Database = {
           owner_id: string
           phone?: string | null
           rating?: number | null
+          slogan?: string | null
+          specialties?: string[]
           status?: Database["public"]["Enums"]["store_status"]
           total_ratings?: number | null
           updated_at?: string
+          verified?: boolean
           whatsapp: string
+          year_founded?: number | null
         }
         Update: {
           address?: string | null
@@ -374,7 +386,9 @@ export type Database = {
           delivery_time_max?: number | null
           delivery_time_min?: number | null
           description?: string | null
+          facebook?: string | null
           id?: string
+          instagram?: string | null
           logo_url?: string | null
           min_order?: number | null
           name?: string
@@ -383,10 +397,14 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           rating?: number | null
+          slogan?: string | null
+          specialties?: string[]
           status?: Database["public"]["Enums"]["store_status"]
           total_ratings?: number | null
           updated_at?: string
+          verified?: boolean
           whatsapp?: string
+          year_founded?: number | null
         }
         Relationships: []
       }
