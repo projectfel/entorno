@@ -635,23 +635,43 @@ const Dashboard = () => {
               </ul>
             </div>
 
-            <div className="mb-4">
-              <label className="text-xs font-medium text-muted-foreground">Foto de capa</label>
-              <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
-                {coverPreview ? (
-                  <img src={coverPreview} alt="Capa" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="h-full w-full bg-secondary flex items-center justify-center">
-                    <span className="text-3xl">🏪</span>
-                  </div>
-                )}
-                <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2.5 py-1.5 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
-                  <Upload className="h-3 w-3" />
-                  {uploading ? "Enviando..." : "Alterar"}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
-                </label>
+            <div className="mb-4 grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Foto de capa</label>
+                <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
+                  {coverPreview ? (
+                    <img src={coverPreview} alt="Capa" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full bg-secondary flex items-center justify-center">
+                      <span className="text-3xl">🏪</span>
+                    </div>
+                  )}
+                  <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2.5 py-1.5 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
+                    <Upload className="h-3 w-3" />
+                    {uploading ? "Enviando..." : "Alterar"}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Logo</label>
+                <div className="relative mt-1 h-32 rounded-xl overflow-hidden border">
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full bg-secondary flex items-center justify-center">
+                      <span className="text-2xl">🏷️</span>
+                    </div>
+                  )}
+                  <label className="absolute bottom-2 right-2 flex items-center gap-1 rounded-lg bg-card/90 backdrop-blur-sm px-2 py-1 text-[10px] font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors">
+                    <Upload className="h-3 w-3" />
+                    {uploading ? "..." : "Alterar"}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploading} />
+                  </label>
+                </div>
               </div>
             </div>
+
 
             <div className="space-y-3">
               <div>
