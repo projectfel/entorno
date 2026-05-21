@@ -196,8 +196,14 @@ const Dashboard = () => {
       closes_at: store.closes_at ? String(store.closes_at).slice(0, 5) : "", delivery_fee: String(store.delivery_fee ?? 0),
       min_order: String(store.min_order ?? 0), delivery_time_min: String(store.delivery_time_min ?? 30),
       delivery_time_max: String(store.delivery_time_max ?? 60),
+      slogan: (store as any).slogan ?? "",
+      instagram: (store as any).instagram ?? "",
+      facebook: (store as any).facebook ?? "",
+      year_founded: (store as any).year_founded ? String((store as any).year_founded) : "",
+      specialties: ((store as any).specialties ?? []).join(", "),
     });
     setCoverPreview(store.cover_image || null);
+    setLogoPreview((store as any).logo_url || null);
     setShowSettings(true);
   };
 
