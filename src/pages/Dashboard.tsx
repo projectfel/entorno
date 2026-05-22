@@ -117,6 +117,7 @@ const Dashboard = () => {
     if (!form.name || !form.price || !store) return;
     const toastId = toast.loading(editingId ? "Atualizando produto..." : "Criando produto...");
     try {
+      const stock = parseInt(form.stock_quantity || "0", 10);
       const productData = {
         name: form.name.trim(),
         price: parseFloat(form.price),
@@ -126,6 +127,11 @@ const Dashboard = () => {
         category_id: form.category_id || null,
         original_price: form.original_price ? parseFloat(form.original_price) : null,
         featured: form.featured,
+        stock_quantity: Number.isFinite(stock) ? stock : 0,
+        low_stock_threshold: parseInt(form.low_stock_threshold || "5", 10) || 5,
+        sku: form.sku.trim() || null,
+        gallery_urls: form.gallery_urls,
+        in_stock: (Number.isFinite(stock) ? stock : 0) > 0,
       };
 
       if (editingId) {
@@ -141,17 +147,12 @@ const Dashboard = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const toastId = toast.loading("Removendo produto...");
-    try {
-      await deleteProduct.mutateAsync(id);
-      toast.success("Produto removido!", { id: toastId });
-    } catch {
-      toast.error("Erro ao remover produto", { id: toastId });
-    }
-  };
-
-  const handleEdit = (p: { id: string; name: string; price: number; description: string | null; unit: string | null; image_url: string | null; category_id: string | null; original_price: number | null; featured: boolean | null }) => {
+  const handleEdit = (p: {
+    id: string; name: string; price: number; description: string | null; unit: string | null;
+    image_url: string | null; category_id: string | null; original_price: number | null;
+    featured: boolean | null; stock_quantity?: number; low_stock_threshold?: number;
+    sku?: string | null; gallery_urls?: string[] | null;
+  }) => {
     setForm({
       name: p.name,
       price: String(p.price),
@@ -161,22 +162,13 @@ const Dashboard = () => {
       category_id: p.category_id || "",
       original_price: p.original_price ? String(p.original_price) : "",
       featured: p.featured || false,
+      stock_quantity: String(p.stock_quantity ?? 0),
+      low_stock_threshold: String(p.low_stock_threshold ?? 5),
+      sku: p.sku || "",
+      gallery_urls: p.gallery_urls || [],
     });
     setEditingId(p.id);
     setShowAdd(true);
-  };
-
-  const handleTogglePromo = async (p: { id: string; featured: boolean | null }) => {
-    const toastId = toast.loading(p.featured ? "Removendo destaque..." : "Adicionando destaque...");
-    try {
-      await updateProduct.mutateAsync({
-        id: p.id,
-        updates: { featured: !p.featured },
-      });
-      toast.success(p.featured ? "Produto removido dos destaques" : "Produto em destaque! ⭐", { id: toastId });
-    } catch {
-      toast.error("Erro ao alterar destaque", { id: toastId });
-    }
   };
 
   const handleToggleStatus = async () => {
