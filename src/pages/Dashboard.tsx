@@ -42,11 +42,15 @@ const Dashboard = () => {
 
   const [busca, setBusca] = useState("");
   const [showAdd, setShowAdd] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [showStockHistory, setShowStockHistory] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "", price: "", description: "", unit: "un", image_url: "",
     category_id: "", original_price: "", featured: false,
+    stock_quantity: "0", low_stock_threshold: "5", sku: "",
+    gallery_urls: [] as string[],
   });
 
   // Store settings
@@ -61,7 +65,7 @@ const Dashboard = () => {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const resetForm = () => {
-    setForm({ name: "", price: "", description: "", unit: "un", image_url: "", category_id: "", original_price: "", featured: false });
+    setForm({ name: "", price: "", description: "", unit: "un", image_url: "", category_id: "", original_price: "", featured: false, stock_quantity: "0", low_stock_threshold: "5", sku: "", gallery_urls: [] });
     setShowAdd(false);
     setEditingId(null);
   };
