@@ -70,18 +70,8 @@ const Dashboard = () => {
     setEditingId(null);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const toastId = toast.loading("Enviando imagem...");
-    try {
-      const result = await upload(file, `products/${store?.id}`);
-      setForm((f) => ({ ...f, image_url: result.url }));
-      toast.success("Imagem carregada!", { id: toastId });
-    } catch {
-      toast.error("Erro ao carregar imagem", { id: toastId });
-    }
-  };
+
+
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
