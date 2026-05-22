@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { Package, Store, Clock, Plus, ArrowLeft, Search, Save, X, ShoppingBag, Settings, Upload, BarChart3, FileSpreadsheet, History, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
