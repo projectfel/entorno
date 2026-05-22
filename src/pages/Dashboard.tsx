@@ -775,6 +775,13 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      {showImport && store && (
+        <ProductImportWizard storeId={store.id} onClose={() => setShowImport(false)} />
+      )}
+      {showStockHistory && store && (
+        <StockHistoryDialog storeId={store.id} onClose={() => setShowStockHistory(false)} />
+      )}
     </main>
   );
 };
