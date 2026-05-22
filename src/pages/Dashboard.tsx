@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Package, Store, Clock, Plus, Trash2, ArrowLeft, Pencil, Search, Image as ImageIcon, Save, X, ShoppingBag, Settings, Upload, BarChart3, Tag, Star, StarOff } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Package, Store, Clock, Plus, ArrowLeft, Search, Save, X, ShoppingBag, Settings, Upload, BarChart3, FileSpreadsheet, History, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyStores } from "@/hooks/useStores";
@@ -15,12 +15,12 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
+import ProductImportWizard from "@/components/dashboard/ProductImportWizard";
+import ProductGalleryUpload from "@/components/dashboard/ProductGalleryUpload";
+import StockHistoryDialog from "@/components/dashboard/StockHistoryDialog";
+import ProductInlineRow from "@/components/dashboard/ProductInlineRow";
 
 const Dashboard = () => {
   const { user } = useAuth();
