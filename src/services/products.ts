@@ -81,7 +81,7 @@ export const productsService = {
     if (getErr) throw getErr;
     const { id: _id, created_at: _c, updated_at: _u, ...rest } = original as Record<string, unknown>;
     const copy = { ...rest, name: `${(rest as { name: string }).name} (cópia)`, featured: false };
-    const { data, error } = await supabase.from("products").insert(copy).select().single();
+    const { data, error } = await supabase.from("products").insert(copy as never).select().single();
     if (error) throw error;
     return data;
   },
