@@ -272,6 +272,12 @@ const Dashboard = () => {
     (p) => !busca || p.name.toLowerCase().includes(busca.toLowerCase())
   );
 
+  const lowStockProducts = (products || []).filter(
+    (p) => (p as { stock_quantity?: number; low_stock_threshold?: number }).stock_quantity !== undefined &&
+      (p as { stock_quantity: number }).stock_quantity > 0 &&
+      (p as { stock_quantity: number }).stock_quantity <= ((p as { low_stock_threshold?: number }).low_stock_threshold ?? 5)
+  );
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-6">
       <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
