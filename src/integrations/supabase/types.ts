@@ -218,13 +218,17 @@ export type Database = {
           created_at: string
           description: string | null
           featured: boolean | null
+          gallery_urls: string[]
           id: string
           image_url: string | null
           in_stock: boolean | null
+          low_stock_threshold: number
           name: string
           original_price: number | null
           price: number
+          sku: string | null
           sort_order: number | null
+          stock_quantity: number
           store_id: string
           unit: string | null
           updated_at: string
@@ -234,13 +238,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean | null
+          gallery_urls?: string[]
           id?: string
           image_url?: string | null
           in_stock?: boolean | null
+          low_stock_threshold?: number
           name: string
           original_price?: number | null
           price: number
+          sku?: string | null
           sort_order?: number | null
+          stock_quantity?: number
           store_id: string
           unit?: string | null
           updated_at?: string
@@ -250,13 +258,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean | null
+          gallery_urls?: string[]
           id?: string
           image_url?: string | null
           in_stock?: boolean | null
+          low_stock_threshold?: number
           name?: string
           original_price?: number | null
           price?: number
+          sku?: string | null
           sort_order?: number | null
+          stock_quantity?: number
           store_id?: string
           unit?: string | null
           updated_at?: string
@@ -317,6 +329,67 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          actor_id: string | null
+          balance_after: number
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          reason: string | null
+          reference_id: string | null
+          store_id: string
+          type: Database["public"]["Enums"]["stock_movement_type"]
+        }
+        Insert: {
+          actor_id?: string | null
+          balance_after: number
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity: number
+          reason?: string | null
+          reference_id?: string | null
+          store_id: string
+          type: Database["public"]["Enums"]["stock_movement_type"]
+        }
+        Update: {
+          actor_id?: string | null
+          balance_after?: number
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          reason?: string | null
+          reference_id?: string | null
+          store_id?: string
+          type?: Database["public"]["Enums"]["stock_movement_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stores: {
         Row: {
@@ -527,6 +600,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      stock_movement_type:
+        | "purchase"
+        | "sale"
+        | "adjustment"
+        | "loss"
+        | "return"
+        | "import"
       store_status: "open" | "closed" | "maintenance"
     }
     CompositeTypes: {
@@ -656,6 +736,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      stock_movement_type: [
+        "purchase",
+        "sale",
+        "adjustment",
+        "loss",
+        "return",
+        "import",
+      ],
       store_status: ["open", "closed", "maintenance"],
     },
   },
