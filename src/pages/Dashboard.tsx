@@ -390,13 +390,45 @@ const Dashboard = () => {
               />
             </div>
             <button
+              onClick={() => setShowImport(true)}
+              className="flex items-center gap-1.5 rounded-lg border bg-background px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              title="Importar planilha"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span className="hidden sm:inline">Importar</span>
+            </button>
+            <button
+              onClick={() => setShowStockHistory(true)}
+              className="flex items-center gap-1.5 rounded-lg border bg-background px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              title="Histórico de estoque"
+            >
+              <History className="h-4 w-4" />
+              <span className="hidden sm:inline">Estoque</span>
+            </button>
+            <button
               onClick={() => { resetForm(); setShowAdd(true); }}
               className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
             >
               <Plus className="h-4 w-4" />
-              Adicionar
+              <span className="hidden sm:inline">Adicionar</span>
             </button>
           </div>
+
+          {/* Low stock alert */}
+          {lowStockProducts.length > 0 && (
+            <div className="mb-4 flex items-start gap-2 rounded-lg border border-accent/40 bg-accent/5 p-3 text-xs">
+              <AlertTriangle className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-medium text-foreground">
+                  {lowStockProducts.length} produto(s) com estoque baixo
+                </p>
+                <p className="text-muted-foreground mt-0.5">
+                  {lowStockProducts.slice(0, 3).map((p) => p.name).join(", ")}
+                  {lowStockProducts.length > 3 && ` +${lowStockProducts.length - 3} outros`}
+                </p>
+              </div>
+            </div>
+          )}
 
           {showAdd && (
             <div className="mb-4 rounded-xl border bg-card p-4 animate-scale-in">
@@ -406,13 +438,19 @@ const Dashboard = () => {
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <input type="text" placeholder="Nome do produto *" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input type="text" placeholder="SKU / código interno" value={form.sku} onChange={(e) => setForm((f) => ({ ...f, sku: e.target.value }))}
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 <input type="number" step="0.01" placeholder="Preço (R$) *" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                  className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                <input type="text" placeholder="Descrição" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input type="number" step="0.01" placeholder="Preço original (promoção)" value={form.original_price} onChange={(e) => setForm((f) => ({ ...f, original_price: e.target.value }))}
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input type="number" placeholder="Estoque atual" value={form.stock_quantity} onChange={(e) => setForm((f) => ({ ...f, stock_quantity: e.target.value }))}
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input type="number" placeholder="Alerta estoque baixo" value={form.low_stock_threshold} onChange={(e) => setForm((f) => ({ ...f, low_stock_threshold: e.target.value }))}
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 <input type="text" placeholder="Unidade (ex: kg, un, 500ml)" value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
-                  className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 <select
                   value={form.category_id}
                   onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
@@ -423,16 +461,22 @@ const Dashboard = () => {
                     <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                   ))}
                 </select>
-                <input type="number" step="0.01" placeholder="Preço original (promoção)" value={form.original_price} onChange={(e) => setForm((f) => ({ ...f, original_price: e.target.value }))}
-                  className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input type="text" placeholder="Descrição" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  className="sm:col-span-2 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
+
+              <div className="mt-4">
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Imagens do produto</label>
+                <ProductGalleryUpload
+                  storeId={store.id}
+                  mainImage={form.image_url || null}
+                  gallery={form.gallery_urls}
+                  onMainChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
+                  onGalleryChange={(urls) => setForm((f) => ({ ...f, gallery_urls: urls }))}
+                />
+              </div>
+
               <div className="mt-3 flex items-center gap-3 flex-wrap">
-                <label className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm text-muted-foreground cursor-pointer hover:bg-secondary transition-colors">
-                  <ImageIcon className="h-4 w-4" />
-                  {uploading ? "Enviando..." : form.image_url ? "Alterar imagem" : "Adicionar imagem"}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                </label>
-                {form.image_url && <img src={form.image_url} alt="Preview" className="h-10 w-10 rounded-lg object-cover" />}
                 <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -440,8 +484,7 @@ const Dashboard = () => {
                     onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))}
                     className="rounded border-border"
                   />
-                  <Star className="h-3.5 w-3.5 text-accent" />
-                  <span className="text-muted-foreground">Destaque</span>
+                  <span className="text-muted-foreground">⭐ Em destaque</span>
                 </label>
               </div>
               <button
@@ -464,73 +507,26 @@ const Dashboard = () => {
               <Package className="mx-auto h-10 w-10 mb-3 opacity-40" />
               <p className="font-medium">{busca ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}</p>
               {!busca && (
-                <button onClick={() => { resetForm(); setShowAdd(true); }} className="mt-3 text-sm text-primary hover:underline">
-                  Adicionar primeiro produto
-                </button>
+                <div className="mt-3 flex justify-center gap-2">
+                  <button onClick={() => { resetForm(); setShowAdd(true); }} className="text-sm text-primary hover:underline">
+                    Adicionar primeiro produto
+                  </button>
+                  <span className="text-sm text-muted-foreground">ou</span>
+                  <button onClick={() => setShowImport(true)} className="text-sm text-primary hover:underline">
+                    Importar planilha
+                  </button>
+                </div>
               )}
             </div>
           ) : (
             <div className="space-y-2">
-              {filteredProducts.map((p) => {
-                const hasDiscount = p.original_price && Number(p.original_price) > Number(p.price);
-                return (
-                  <div key={p.id} className="flex items-center justify-between rounded-xl border bg-card p-4 transition-colors hover:bg-secondary/50">
-                    <div className="flex items-center gap-3">
-                      {p.image_url && <img src={p.image_url} alt={p.name} className="h-12 w-12 rounded-lg object-cover" />}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-card-foreground">{p.name}</p>
-                          {p.featured && <Star className="h-3 w-3 fill-accent text-accent" />}
-                          {hasDiscount && <Badge className="bg-destructive text-destructive-foreground border-0 text-[9px] px-1.5">PROMO</Badge>}
-                        </div>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-sm font-bold text-primary">R$ {Number(p.price).toFixed(2).replace(".", ",")}</span>
-                          {hasDiscount && (
-                            <span className="text-xs text-muted-foreground line-through">R$ {Number(p.original_price).toFixed(2).replace(".", ",")}</span>
-                          )}
-                          {p.unit && <span className="text-xs text-muted-foreground">{p.unit}</span>}
-                          {(p as { categories?: { name: string } }).categories?.name && (
-                            <Badge variant="outline" className="text-[9px] px-1.5 gap-0.5">
-                              <Tag className="h-2.5 w-2.5" />
-                              {(p as { categories?: { name: string } }).categories!.name}
-                            </Badge>
-                          )}
-                          {!p.in_stock && <Badge variant="secondary" className="text-[10px]">Sem estoque</Badge>}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleTogglePromo(p)}
-                        title={p.featured ? "Remover destaque" : "Destacar"}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
-                      >
-                        {p.featured ? <StarOff className="h-4 w-4" /> : <Star className="h-4 w-4" />}
-                      </button>
-                      <button onClick={() => handleEdit(p)} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
-                            <AlertDialogDescription>Esta ação não pode ser desfeita. O produto "{p.name}" será removido permanentemente.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(p.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredProducts.map((p) => (
+                <ProductInlineRow
+                  key={p.id}
+                  product={p as never}
+                  onEdit={() => handleEdit(p as never)}
+                />
+              ))}
             </div>
           )}
         </TabsContent>
