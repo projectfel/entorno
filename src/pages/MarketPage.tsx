@@ -63,62 +63,81 @@ const MarketPage = () => {
       {/* Banner */}
       <div className="relative h-60 sm:h-80 overflow-hidden">
         {store.cover_image ? (
-          <img src={store.cover_image} alt={store.name} className="h-full w-full object-cover" />
+          <img src={store.cover_image} alt={store.name} className="h-full w-full object-cover scale-105" />
         ) : (
-          <div className="h-full w-full bg-secondary flex items-center justify-center">
-            <span className="text-6xl">🏪</span>
+          <div className="h-full w-full gradient-garden flex items-center justify-center">
+            <span className="text-6xl">🌿</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-foreground/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-foreground/20" />
+        <div className="absolute inset-0 bg-grain opacity-30 mix-blend-overlay" />
 
         <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
-          <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-xl bg-card/90 backdrop-blur-sm text-card-foreground hover:bg-card transition-colors shadow-md">
+          <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm text-card-foreground hover:bg-card transition-all hover:-translate-x-0.5 shadow-soft">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-card/90 backdrop-blur-sm text-card-foreground shadow-md">
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm text-card-foreground shadow-soft hover:scale-110 transition-transform">
               <Heart className="h-5 w-5" />
             </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-card/90 backdrop-blur-sm text-card-foreground shadow-md">
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm text-card-foreground shadow-soft hover:scale-110 transition-transform">
               <Share2 className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+        <div className="absolute bottom-6 left-0 right-0 p-4 sm:p-6">
           <div className="mx-auto max-w-6xl">
             <div className="flex items-center gap-2 mb-2">
               {isOpen ? (
-                <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] border-0">Aberto agora</Badge>
+                <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] border-0 rounded-full px-3 animate-breathe">
+                  <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+                  Aberto agora
+                </Badge>
               ) : (
-                <Badge variant="secondary">{statusLabel}</Badge>
+                <Badge variant="secondary" className="rounded-full px-3">{statusLabel}</Badge>
               )}
-              <Badge variant="outline" className="bg-card/50 backdrop-blur-sm border-border/50">
-                {store.delivery_time_min ?? 30}-{store.delivery_time_max ?? 60} min
+              <Badge variant="outline" className="bg-card/60 backdrop-blur-sm border-border/50 rounded-full px-3">
+                {store.delivery_time_min ?? 30}–{store.delivery_time_max ?? 60} min
               </Badge>
               {store.year_founded && (
-                <Badge variant="outline" className="bg-card/50 backdrop-blur-sm border-border/50 hidden sm:inline-flex">
+                <Badge variant="outline" className="bg-card/60 backdrop-blur-sm border-border/50 hidden sm:inline-flex rounded-full px-3">
                   <CalendarDays className="h-3 w-3 mr-1" />Desde {store.year_founded}
                 </Badge>
               )}
             </div>
           </div>
         </div>
+
+        {/* Organic curve — the garden meets the page */}
+        <svg
+          className="absolute -bottom-px left-0 right-0 w-full h-10 sm:h-14 text-background"
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0,80 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 Z" fill="currentColor" />
+        </svg>
       </div>
 
       {/* Identity header (logo + name + verified + slogan) */}
-      <div className="mx-auto max-w-6xl px-4 -mt-12 sm:-mt-14 relative z-10">
+      <div className="mx-auto max-w-6xl px-4 -mt-14 sm:-mt-16 relative z-10">
+        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground mb-2 animate-fade-in">
+          Você está em
+        </p>
         <div className="flex items-end gap-4">
-          <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden bg-card border-4 border-background shadow-lg shrink-0">
+          <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl overflow-hidden bg-card border-4 border-background shadow-bloom shrink-0 animate-breathe">
             {store.logo_url ? (
               <img src={store.logo_url} alt={`Logo ${store.name}`} className="h-full w-full object-cover" />
             ) : (
-              <div className="h-full w-full flex items-center justify-center bg-secondary text-3xl">🏪</div>
+              <div className="h-full w-full flex items-center justify-center bg-secondary text-3xl">🌿</div>
             )}
           </div>
           <div className="flex-1 min-w-0 pb-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">{store.name}</h1>
+              <h1 className="font-display text-3xl sm:text-4xl font-medium text-foreground truncate tracking-tight">
+                {store.name}
+              </h1>
               {store.verified && (
                 <span title="Loja verificada" className="inline-flex items-center text-primary">
                   <BadgeCheck className="h-6 w-6" fill="currentColor" stroke="hsl(var(--primary-foreground))" />
@@ -126,17 +145,17 @@ const MarketPage = () => {
               )}
             </div>
             {store.slogan && (
-              <p className="text-sm sm:text-base text-muted-foreground italic mt-0.5">"{store.slogan}"</p>
+              <p className="font-display text-sm sm:text-base text-muted-foreground italic mt-1">"{store.slogan}"</p>
             )}
           </div>
         </div>
         {store.description && (
-          <p className="text-sm text-muted-foreground mt-3 max-w-2xl">{store.description}</p>
+          <p className="text-sm text-muted-foreground mt-4 max-w-2xl leading-relaxed">{store.description}</p>
         )}
         {store.specialties && store.specialties.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {store.specialties.map((s) => (
-              <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+              <Badge key={s} variant="secondary" className="text-xs rounded-full px-3">{s}</Badge>
             ))}
           </div>
         )}
@@ -243,10 +262,10 @@ const MarketPage = () => {
       )}
 
       {/* Products */}
-      <section className="mx-auto max-w-6xl px-4 mt-6">
-        <h2 className="mb-4 text-lg font-bold text-foreground">
-          {categoriaAtiva || "Todos os produtos"}{" "}
-          <span className="text-muted-foreground font-normal text-base">({filteredProducts.length})</span>
+      <section className="mx-auto max-w-6xl px-4 mt-8">
+        <h2 className="mb-5 font-display text-2xl font-medium text-foreground">
+          {categoriaAtiva || "Tudo o que está fresco hoje"}{" "}
+          <span className="text-muted-foreground font-normal text-base font-sans">· {filteredProducts.length}</span>
         </h2>
         {productsLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
