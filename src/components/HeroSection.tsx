@@ -1,4 +1,4 @@
-import { Search, MapPin, Sparkles } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import heroPremium from "@/assets/hero-premium.jpg";
 
 interface HeroSectionProps {
@@ -7,51 +7,71 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ busca, onBuscaChange }: HeroSectionProps) => {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+
   return (
     <section className="relative overflow-hidden">
-      {/* Hero Image */}
-      <div className="relative h-[420px] sm:h-[480px]">
+      <div className="relative h-[460px] sm:h-[520px]">
         <img
           src={heroPremium}
-          alt="O Entorno — Marketplace de Bairro"
-          className="h-full w-full object-cover"
+          alt="O Entorno — Mercados do bairro"
+          className="h-full w-full object-cover scale-105 animate-sway"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground/70 via-foreground/40 to-background" />
+        {/* Soft organic overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/55 via-foreground/30 to-background/95" />
+        <div className="absolute inset-0 bg-grain opacity-40 mix-blend-overlay" />
 
         {/* Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
-          <div className="flex items-center gap-2 rounded-full bg-primary/20 px-4 py-1.5 backdrop-blur-sm border border-primary/30 mb-4 animate-fade-in">
-            <Sparkles className="h-3.5 w-3.5 text-accent" />
-            <span className="text-xs font-medium text-primary-foreground">Marketplace do Bairro</span>
+          <div className="flex items-center gap-2 rounded-full bg-background/15 px-4 py-1.5 backdrop-blur-md border border-background/25 mb-5 animate-fade-in animate-breathe">
+            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--sage))]" />
+            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-primary-foreground">
+              {greeting}, vizinho
+            </span>
           </div>
-          
-          <h1 className="text-center text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground tracking-tight animate-fade-in">
+
+          <h1
+            className="font-display text-center text-5xl sm:text-6xl lg:text-7xl font-medium text-primary-foreground tracking-tight animate-fade-in"
+            style={{ fontVariationSettings: "'SOFT' 100, 'opsz' 144" }}
+          >
             O Entorno
           </h1>
-          <p className="mt-3 text-center text-base sm:text-lg text-primary-foreground/80 max-w-md animate-slide-up">
-            Conectando você aos melhores mercados do seu bairro
+          <p className="mt-4 text-center text-base sm:text-lg text-primary-foreground/85 max-w-md font-light animate-slide-up leading-relaxed">
+            O tempo passa devagar quando o mercado é do seu bairro.
           </p>
 
-          {/* Location badge */}
-          <div className="mt-4 flex items-center gap-1.5 text-primary-foreground/70 animate-slide-up">
+          <div className="mt-5 flex items-center gap-1.5 text-primary-foreground/70 animate-slide-up">
             <MapPin className="h-4 w-4" />
             <span className="text-sm">Lagoa Azul — Conj. Boa Esperança</span>
           </div>
 
-          {/* Search bar */}
-          <div className="mt-6 w-full max-w-lg animate-slide-up">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <div className="mt-7 w-full max-w-lg animate-slide-up">
+            <div className="relative group">
+              <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <input
                 type="text"
-                placeholder="Buscar mercados, produtos ou categorias..."
+                placeholder="Procure um mercado, um produto, uma lembrança..."
                 value={busca}
                 onChange={(e) => onBuscaChange(e.target.value)}
-                className="w-full rounded-2xl border-0 bg-card/95 backdrop-blur-md py-4 pl-12 pr-4 text-card-foreground shadow-xl placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+                className="w-full rounded-full border-0 bg-card/95 backdrop-blur-md py-4 pl-14 pr-5 text-card-foreground shadow-bloom placeholder:text-muted-foreground placeholder:font-light focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
               />
             </div>
           </div>
         </div>
+
+        {/* Organic curve at the bottom — the garden meets the page */}
+        <svg
+          className="absolute -bottom-px left-0 right-0 w-full h-12 sm:h-16 text-background"
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,80 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 Z"
+            fill="currentColor"
+          />
+        </svg>
       </div>
     </section>
   );

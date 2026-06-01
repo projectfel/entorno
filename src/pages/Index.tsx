@@ -36,6 +36,18 @@ const Index = () => {
         <GlobalSearch busca={busca} onBuscaChange={setBusca} />
       </div>
 
+      {/* Manifesto strip — a quiet anchor for the brand */}
+      <section className="mx-auto max-w-3xl px-4 mt-12 text-center">
+        <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground mb-3">
+          Pequenos mercados · grandes momentos
+        </p>
+        <p className="font-display text-2xl sm:text-3xl font-medium text-foreground leading-snug">
+          Compre <em className="not-italic text-primary">devagar</em>. Apoie quem está perto.
+          <br className="hidden sm:block" />
+          Sinta o ritmo do bairro acontecendo na palma da mão.
+        </p>
+      </section>
+
       <FeaturedDeals />
 
       {featuredProducts && featuredProducts.length > 0 && (
@@ -43,12 +55,12 @@ const Index = () => {
           {/* Premium header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(38,60%,45%)] shadow-lg shadow-[hsl(var(--gold))]/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(38,60%,45%)] shadow-soft animate-breathe">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-extrabold text-foreground tracking-tight">Ofertas em Destaque</h2>
-                <p className="text-xs text-muted-foreground">Seleção premium dos melhores preços do bairro</p>
+                <h2 className="font-display text-2xl font-medium text-foreground tracking-tight">Em destaque hoje</h2>
+                <p className="text-xs text-muted-foreground">Escolhas que o bairro está levando agora</p>
               </div>
             </div>
           </div>
@@ -125,15 +137,15 @@ const Index = () => {
           <>
             {abertos.length > 0 && (
               <>
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[hsl(var(--success))]/10 animate-breathe">
                     <Store className="h-4 w-4 text-[hsl(var(--success))]" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      Abertos agora <span className="text-primary">({abertos.length})</span>
+                    <h2 className="font-display text-2xl font-medium text-foreground">
+                      Abertos agora <span className="text-primary">· {abertos.length}</span>
                     </h2>
-                    <p className="text-xs text-muted-foreground">Peça agora e receba em minutos</p>
+                    <p className="text-xs text-muted-foreground">Peça agora — eles estão prontos para você</p>
                   </div>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -144,8 +156,8 @@ const Index = () => {
 
             {fechados.length > 0 && (
               <>
-                <div className="flex items-center gap-2 mb-5 mt-12">
-                  <h2 className="text-lg font-semibold text-muted-foreground">Fechados no momento</h2>
+                <div className="flex items-center gap-2 mb-5 mt-14">
+                  <h2 className="font-display text-lg font-medium text-muted-foreground italic">Descansando no momento</h2>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
                   {fechados.map((s) => <StoreCard key={s.id} store={s} />)}
