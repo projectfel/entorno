@@ -171,7 +171,7 @@ export type Database = {
           store_id: string
           total: number
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -182,7 +182,7 @@ export type Database = {
           store_id: string
           total: number
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -193,7 +193,7 @@ export type Database = {
           store_id?: string
           total?: number
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -547,7 +547,7 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           opens_at?: string | null
-          phone?: string | null
+          phone?: never
           rating?: number | null
           slogan?: string | null
           specialties?: string[] | null
@@ -555,7 +555,7 @@ export type Database = {
           total_ratings?: number | null
           updated_at?: string | null
           verified?: boolean | null
-          whatsapp?: string | null
+          whatsapp?: never
           year_founded?: number | null
         }
         Update: {
@@ -575,7 +575,7 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           opens_at?: string | null
-          phone?: string | null
+          phone?: never
           rating?: number | null
           slogan?: string | null
           specialties?: string[] | null
@@ -583,7 +583,7 @@ export type Database = {
           total_ratings?: number | null
           updated_at?: string | null
           verified?: boolean | null
-          whatsapp?: string | null
+          whatsapp?: never
           year_founded?: number | null
         }
         Relationships: []
