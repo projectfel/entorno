@@ -8,7 +8,7 @@ import { useStoreOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { useUploadImage } from "@/hooks/useUploadImage";
 import { useCategories } from "@/hooks/useCategories";
 import { storesService } from "@/services/stores";
-import { isStoreOpen, getStoreStatusLabel } from "@/lib/storeStatus";
+import { isStoreOpen } from "@/lib/storeStatus";
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { DashboardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
@@ -256,7 +256,6 @@ const Dashboard = () => {
   }
 
   const reallyOpen = isStoreOpen(store);
-  const { label: statusLabel } = getStoreStatusLabel(store);
 
   const filteredProducts = (products || []).filter(
     (p) => !busca || p.name.toLowerCase().includes(busca.toLowerCase())
@@ -269,92 +268,105 @@ const Dashboard = () => {
   );
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-6">
-      <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+    <main className="mx-auto max-w-4xl px-4 py-8 animate-fade-in">
+      <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-500">
         <ArrowLeft className="h-4 w-4" />
-        Voltar ao marketplace
+        voltar ao entorno
       </Link>
 
-      {/* Cover image section */}
-      <div className="relative mb-6 h-40 sm:h-52 rounded-2xl overflow-hidden border">
+      {/* Cover image — organic, breathing presence */}
+      <div className="relative mb-8 h-44 sm:h-56 rounded-3xl overflow-hidden border border-border/60 shadow-soft">
         {(coverPreview || store.cover_image) ? (
-          <img src={coverPreview || store.cover_image!} alt="Capa" className="h-full w-full object-cover" />
+          <img src={coverPreview || store.cover_image!} alt="Capa" className="h-full w-full object-cover animate-sway" />
         ) : (
-          <div className="h-full w-full bg-secondary flex items-center justify-center">
-            <span className="text-4xl">🏪</span>
+          <div className="h-full w-full gradient-garden flex items-center justify-center">
+            <span className="text-5xl animate-breathe">🌿</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-        <label className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-card/90 backdrop-blur-sm px-3 py-2 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors shadow-md">
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+
+        {/* Organic wave at bottom */}
+        <svg
+          className="absolute bottom-0 left-0 w-full h-6 text-background"
+          viewBox="0 0 1440 24"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0,12 C240,24 480,0 720,12 C960,24 1200,0 1440,12 L1440,24 L0,24 Z" fill="currentColor" />
+        </svg>
+
+        <label className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-card/90 backdrop-blur-sm px-3 py-2 text-xs font-medium text-card-foreground cursor-pointer hover:bg-card transition-colors duration-500 shadow-soft">
           <Upload className="h-3.5 w-3.5" />
-          {uploading ? "Enviando..." : "Alterar capa"}
+          {uploading ? "enviando..." : "trocar capa"}
           <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
         </label>
-        <div className="absolute bottom-3 left-3">
-          <h2 className="text-lg font-bold text-primary-foreground drop-shadow-md">{store.name}</h2>
+        <div className="absolute bottom-4 left-5 right-5">
+          <p className="text-[10px] text-primary-foreground/80 tracking-[0.22em] uppercase mb-1">você está cuidando de</p>
+          <h2 className="font-display text-2xl sm:text-3xl text-primary-foreground drop-shadow-md leading-tight">{store.name}</h2>
         </div>
       </div>
 
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Painel do Lojista</h1>
-          <p className="text-muted-foreground">{store.name}</p>
+      {/* Sacred header strip */}
+      <div className="mb-10 flex items-start justify-between gap-4">
+        <div className="animate-slide-up">
+          <p className="text-[10px] text-muted-foreground tracking-[0.22em] uppercase mb-2">painel do lojista</p>
+          <h1 className="font-display text-3xl sm:text-4xl text-foreground leading-tight">
+            seu jardim de vendas
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 italic max-w-md">
+            cuide do seu cantinho do bairro — cada produto plantado aqui é presença para um vizinho.
+          </p>
         </div>
-        <button onClick={openSettings} className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+        <button onClick={openSettings} className="flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 backdrop-blur px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-500 shadow-soft shrink-0">
           <Settings className="h-4 w-4" />
-          Configurações
+          <span className="hidden sm:inline">ajustar a loja</span>
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+      {/* Stats — calm, generous, organic */}
+      <div className="mb-10 grid gap-4 sm:grid-cols-3">
+        <div className="group rounded-3xl border border-border/60 bg-card/80 backdrop-blur p-5 shadow-soft transition-all duration-700 ease-[var(--ease-organic)] hover:shadow-bloom hover:-translate-y-0.5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-transform duration-700 ease-[var(--ease-organic)] group-hover:scale-110">
               <Package className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{products?.length ?? 0}</p>
-              <p className="text-sm text-muted-foreground">Produtos</p>
+              <p className="font-display text-3xl text-card-foreground leading-none">{products?.length ?? 0}</p>
+              <p className="text-xs text-muted-foreground tracking-wider uppercase mt-1.5">produtos cultivados</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+        <div className="group rounded-3xl border border-border/60 bg-card/80 backdrop-blur p-5 shadow-soft transition-all duration-700 ease-[var(--ease-organic)] hover:shadow-bloom hover:-translate-y-0.5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 transition-transform duration-700 ease-[var(--ease-organic)] group-hover:scale-110">
               <ShoppingBag className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{orders?.length ?? 0}</p>
-              <p className="text-sm text-muted-foreground">Pedidos</p>
+              <p className="font-display text-3xl text-card-foreground leading-none">{orders?.length ?? 0}</p>
+              <p className="text-xs text-muted-foreground tracking-wider uppercase mt-1.5">cestos floresceram</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Clock className="h-5 w-5 text-primary" />
+        <div className="rounded-3xl border border-border/60 bg-card/80 backdrop-blur p-5 shadow-soft">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 shrink-0">
+              <Clock className="h-5 w-5 text-primary animate-breathe" />
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground mb-1">Status</p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleToggleStatus}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                    store.status === "open" ? "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]" : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {store.status === "open" ? "Aberto" : "Fechado"}
-                </button>
-                {store.opens_at && store.closes_at && (
-                  <span className={`text-[10px] ${reallyOpen ? "text-[hsl(var(--success))]" : "text-muted-foreground"}`}>
-                    {reallyOpen ? "Dentro do horário" : "Fora do horário"}
-                  </span>
-                )}
-              </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground tracking-wider uppercase mb-2">presença</p>
+              <button
+                onClick={handleToggleStatus}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-all duration-500 ${
+                  store.status === "open"
+                    ? "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] shadow-soft"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {store.status === "open" ? "loja aberta" : "loja em pausa"}
+              </button>
               {store.opens_at && store.closes_at && (
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  Horário: {String(store.opens_at).slice(0, 5)} - {String(store.closes_at).slice(0, 5)}
+                <p className="text-[10px] text-muted-foreground mt-2 italic">
+                  {reallyOpen ? "dentro do horário" : "fora do horário"} · {String(store.opens_at).slice(0, 5)} — {String(store.closes_at).slice(0, 5)}
                 </p>
               )}
             </div>

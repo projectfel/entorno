@@ -26,21 +26,22 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-md">
-            <span className="text-lg font-black text-primary-foreground">E</span>
+        <Link to="/" className="group flex items-center gap-3">
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary shadow-soft transition-transform duration-700 ease-[var(--ease-organic)] group-hover:scale-105">
+            <span className="font-display text-xl italic text-primary-foreground leading-none">e</span>
+            <span className="absolute inset-0 rounded-full ring-1 ring-primary/20 animate-breathe pointer-events-none" />
           </div>
-          <div className="hidden sm:block">
-            <span className="text-lg font-bold text-foreground leading-none">O Entorno</span>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Marketplace de Bairro</p>
+          <div className="hidden sm:block leading-tight">
+            <span className="font-display text-xl text-foreground tracking-tight">O Entorno</span>
+            <p className="text-[10px] text-muted-foreground tracking-[0.18em] uppercase mt-0.5">presença do bairro</p>
           </div>
         </Link>
 
-        <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm">
+        <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/60 backdrop-blur px-3 py-1.5 text-sm">
           <MapPin className="h-3.5 w-3.5 text-primary" />
-          <span className="text-secondary-foreground text-xs font-medium hidden sm:inline">Lagoa Azul — Boa Esperança</span>
+          <span className="text-secondary-foreground text-xs font-medium hidden sm:inline">você está em Lagoa Azul</span>
           <span className="text-secondary-foreground text-xs font-medium sm:hidden">Lagoa Azul</span>
         </div>
 
