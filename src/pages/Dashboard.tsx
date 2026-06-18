@@ -8,7 +8,7 @@ import { useStoreOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { useUploadImage } from "@/hooks/useUploadImage";
 import { useCategories } from "@/hooks/useCategories";
 import { storesService } from "@/services/stores";
-import { isStoreOpen, getStoreStatusLabel } from "@/lib/storeStatus";
+import { isStoreOpen } from "@/lib/storeStatus";
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { DashboardSkeleton } from "@/components/StoreSkeleton";
 import { Badge } from "@/components/ui/badge";
