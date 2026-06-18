@@ -256,7 +256,6 @@ const Dashboard = () => {
   }
 
   const reallyOpen = isStoreOpen(store);
-  const { label: statusLabel } = getStoreStatusLabel(store);
 
   const filteredProducts = (products || []).filter(
     (p) => !busca || p.name.toLowerCase().includes(busca.toLowerCase())
