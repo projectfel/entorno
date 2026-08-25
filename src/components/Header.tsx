@@ -28,21 +28,19 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="group flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary shadow-soft transition-transform duration-700 ease-[var(--ease-organic)] group-hover:scale-105">
-            <span className="font-display text-xl italic text-primary-foreground leading-none">e</span>
-            <span className="absolute inset-0 rounded-full ring-1 ring-primary/20 animate-breathe pointer-events-none" />
+        <Link to="/" className="group flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary transition-transform group-hover:scale-105">
+            <span className="font-display text-base text-primary-foreground leading-none">e</span>
           </div>
           <div className="hidden sm:block leading-tight">
-            <span className="font-display text-xl text-foreground tracking-tight">O Entorno</span>
-            <p className="text-[10px] text-muted-foreground tracking-[0.18em] uppercase mt-0.5">presença do bairro</p>
+            <span className="font-display text-lg text-foreground">O Entorno</span>
+            <p className="text-[10px] text-muted-foreground tracking-[0.16em] uppercase">mercados do bairro</p>
           </div>
         </Link>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/60 backdrop-blur px-3 py-1.5 text-sm">
+        <div className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-2.5 py-1.5">
           <MapPin className="h-3.5 w-3.5 text-primary" />
-          <span className="text-secondary-foreground text-xs font-medium hidden sm:inline">você está em Lagoa Azul</span>
-          <span className="text-secondary-foreground text-xs font-medium sm:hidden">Lagoa Azul</span>
+          <span className="text-secondary-foreground text-xs font-medium">Lagoa Azul</span>
         </div>
 
         <div className="flex items-center gap-2">
