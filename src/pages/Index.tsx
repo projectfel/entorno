@@ -8,7 +8,7 @@ import StoreCard from "@/components/StoreCard";
 import FeaturedDeals from "@/components/FeaturedDeals";
 import GlobalSearch from "@/components/GlobalSearch";
 import { StoreCardSkeleton } from "@/components/StoreSkeleton";
-import { Store, Sparkles, ArrowRight, Tag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const Index = () => {
   const [busca, setBusca] = useState("");
@@ -29,44 +29,23 @@ const Index = () => {
   const fechados = ativos.filter((s) => !isStoreOpen(s));
 
   return (
-    <main className="pb-8">
+    <main className="pb-16">
       <HeroSection busca={busca} onBuscaChange={setBusca} />
 
-      <div className="mx-auto max-w-lg px-4 relative -mt-2 z-20">
+      <div className="mx-auto max-w-xl px-4 relative -mt-5 z-20">
         <GlobalSearch busca={busca} onBuscaChange={setBusca} />
       </div>
-
-      {/* Manifesto strip — a quiet anchor for the brand */}
-      <section className="mx-auto max-w-3xl px-4 mt-12 text-center">
-        <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground mb-3">
-          Pequenos mercados · grandes momentos
-        </p>
-        <p className="font-display text-2xl sm:text-3xl font-medium text-foreground leading-snug">
-          Compre <em className="not-italic text-primary">devagar</em>. Apoie quem está perto.
-          <br className="hidden sm:block" />
-          Sinta o ritmo do bairro acontecendo na palma da mão.
-        </p>
-      </section>
 
       <FeaturedDeals />
 
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="relative mx-auto max-w-6xl px-4 mt-14">
-          {/* Premium header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(38,60%,45%)] shadow-soft animate-breathe">
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h2 className="font-display text-2xl font-medium text-foreground tracking-tight">Em destaque hoje</h2>
-                <p className="text-xs text-muted-foreground">Escolhas que o bairro está levando agora</p>
-              </div>
-            </div>
+        <section className="mx-auto max-w-6xl px-4 mt-12">
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="font-display text-lg text-foreground">Em destaque</h2>
+            <span className="text-xs text-muted-foreground">{featuredProducts.length} itens</span>
           </div>
 
-          {/* Horizontal scroll on mobile, grid on desktop */}
-          <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
             {featuredProducts.map((p) => {
               const storeName = (p as Record<string, unknown> & { stores?: { name: string } }).stores?.name || "";
               const hasDiscount = p.original_price && Number(p.original_price) > Number(p.price);
@@ -75,37 +54,32 @@ const Index = () => {
                 : 0;
 
               return (
-                <div
+                <Link
+                  to={`/mercado/${p.store_id}`}
                   key={p.id}
-                  className="group relative min-w-[200px] shrink-0 lg:min-w-0 overflow-hidden rounded-2xl border border-[hsl(var(--gold))]/15 bg-gradient-to-b from-card to-[hsl(var(--gold))]/[0.03] p-4 transition-all duration-500 hover:shadow-[0_8px_30px_-10px_hsl(var(--gold)/0.2)] hover:-translate-y-1"
+                  className="group relative min-w-[170px] shrink-0 lg:min-w-0 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/40"
                 >
-                  {/* Shimmer top */}
-                  <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
                   {hasDiscount && (
-                    <div className="absolute -right-1 -top-1 rounded-bl-xl rounded-tr-2xl bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(38,60%,45%)] px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
-                      <Tag className="inline h-3 w-3 mr-0.5 -mt-0.5" />
+                    <span className="absolute right-2 top-2 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
                       -{desconto}%
-                    </div>
+                    </span>
                   )}
 
                   {p.image_url && (
-                    <div className="mb-3 overflow-hidden rounded-xl">
+                    <div className="mb-2.5 overflow-hidden rounded-lg bg-muted">
                       <img
                         src={p.image_url}
                         alt={p.name}
-                        className="h-28 w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="h-24 w-full object-cover"
                         loading="lazy"
                       />
                     </div>
                   )}
 
-                  <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[hsl(var(--gold))]">
-                    {storeName}
-                  </span>
-                  <h4 className="mt-1 font-bold text-card-foreground text-sm truncate leading-tight">{p.name}</h4>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-lg font-extrabold bg-gradient-to-r from-primary to-[hsl(var(--gold))] bg-clip-text text-transparent">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{storeName}</span>
+                  <h3 className="mt-0.5 truncate text-sm font-medium text-card-foreground">{p.name}</h3>
+                  <div className="mt-1.5 flex items-baseline gap-2">
+                    <span className="text-base font-semibold text-foreground">
                       R$ {Number(p.price).toFixed(2).replace(".", ",")}
                     </span>
                     {hasDiscount && (
@@ -114,14 +88,10 @@ const Index = () => {
                       </span>
                     )}
                   </div>
-
-                  <Link
-                    to={`/mercado/${p.store_id}`}
-                    className="mt-3 flex items-center gap-1 text-xs font-medium text-[hsl(var(--gold))] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  >
-                    Ver no mercado <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
+                  <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
+                    Ver <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
               );
             })}
           </div>
@@ -130,25 +100,21 @@ const Index = () => {
 
       <section className="mx-auto max-w-6xl px-4 mt-12">
         {isLoading ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => <StoreCardSkeleton key={i} />)}
           </div>
         ) : (
           <>
             {abertos.length > 0 && (
               <>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[hsl(var(--success))]/10 animate-breathe">
-                    <Store className="h-4 w-4 text-[hsl(var(--success))]" />
-                  </div>
-                  <div>
-                    <h2 className="font-display text-2xl font-medium text-foreground">
-                      Abertos agora <span className="text-primary">· {abertos.length}</span>
-                    </h2>
-                    <p className="text-xs text-muted-foreground">Peça agora — eles estão prontos para você</p>
-                  </div>
+                <div className="mb-4 flex items-baseline justify-between">
+                  <h2 className="font-display text-lg text-foreground">Abertos agora</h2>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--success))]" />
+                    {abertos.length} mercados
+                  </span>
                 </div>
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {abertos.map((s) => <StoreCard key={s.id} store={s} />)}
                 </div>
               </>
@@ -156,20 +122,17 @@ const Index = () => {
 
             {fechados.length > 0 && (
               <>
-                <div className="flex items-center gap-2 mb-5 mt-14">
-                  <h2 className="font-display text-lg font-medium text-muted-foreground italic">Descansando no momento</h2>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
+                <h2 className="font-display text-base text-muted-foreground mb-4 mt-12">Fechados</h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
                   {fechados.map((s) => <StoreCard key={s.id} store={s} />)}
                 </div>
               </>
             )}
 
             {filtered.length === 0 && !isLoading && (
-              <div className="py-20 text-center text-muted-foreground">
-                <div className="text-5xl mb-4">🔍</div>
-                <p className="text-lg font-medium">Nenhum mercado encontrado</p>
-                <p className="text-sm mt-1">Tente buscar por outro nome</p>
+              <div className="py-20 text-center">
+                <p className="font-display text-lg text-foreground">Nenhum mercado encontrado</p>
+                <p className="mt-1 text-sm text-muted-foreground">Tente buscar por outro nome</p>
               </div>
             )}
           </>
