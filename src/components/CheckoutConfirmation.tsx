@@ -27,11 +27,11 @@ export const CheckoutConfirmation = ({ order, onClose }: Props) => {
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-[hsl(var(--success))]/10 animate-bloom">
             <CheckCircle2 className="h-12 w-12 text-[hsl(var(--success))]" strokeWidth={1.8} />
           </div>
-          <DialogTitle className="text-center font-display text-2xl font-medium text-foreground animate-fade-in">
-            Seu pedido floresceu
+          <DialogTitle className="text-center font-display text-xl text-foreground animate-fade-in">
+            Pedido enviado
           </DialogTitle>
           <p className="text-center text-sm text-muted-foreground -mt-1">
-            O mercado já está cuidando dele com carinho.
+            O mercado já recebeu e vai confirmar em instantes.
           </p>
         </DialogHeader>
 
