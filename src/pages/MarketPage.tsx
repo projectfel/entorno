@@ -61,16 +61,15 @@ const MarketPage = () => {
         storeReviewCount={store.total_ratings ?? undefined}
       />
       {/* Banner */}
-      <div className="relative h-60 sm:h-80 overflow-hidden">
+      <div className="relative h-44 sm:h-60 overflow-hidden">
         {store.cover_image ? (
-          <img src={store.cover_image} alt={store.name} className="h-full w-full object-cover scale-105" />
+          <img src={store.cover_image} alt={store.name} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full gradient-garden flex items-center justify-center">
-            <span className="text-6xl">🌿</span>
+            <span className="text-5xl">🏪</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-foreground/20" />
-        <div className="absolute inset-0 bg-grain opacity-30 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
         <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
           <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm text-card-foreground hover:bg-card transition-all hover:-translate-x-0.5 shadow-soft">
