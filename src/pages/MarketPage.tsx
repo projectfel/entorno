@@ -61,16 +61,15 @@ const MarketPage = () => {
         storeReviewCount={store.total_ratings ?? undefined}
       />
       {/* Banner */}
-      <div className="relative h-60 sm:h-80 overflow-hidden">
+      <div className="relative h-44 sm:h-60 overflow-hidden">
         {store.cover_image ? (
-          <img src={store.cover_image} alt={store.name} className="h-full w-full object-cover scale-105" />
+          <img src={store.cover_image} alt={store.name} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full gradient-garden flex items-center justify-center">
-            <span className="text-6xl">🌿</span>
+            <span className="text-5xl">🏪</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-foreground/20" />
-        <div className="absolute inset-0 bg-grain opacity-30 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
         <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
           <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm text-card-foreground hover:bg-card transition-all hover:-translate-x-0.5 shadow-soft">
@@ -109,43 +108,31 @@ const MarketPage = () => {
           </div>
         </div>
 
-        {/* Organic curve — the garden meets the page */}
-        <svg
-          className="absolute -bottom-px left-0 right-0 w-full h-10 sm:h-14 text-background"
-          viewBox="0 0 1440 80"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path d="M0,80 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 Z" fill="currentColor" />
-        </svg>
       </div>
 
       {/* Identity header (logo + name + verified + slogan) */}
-      <div className="mx-auto max-w-6xl px-4 -mt-14 sm:-mt-16 relative z-10">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground mb-2 animate-fade-in">
-          Você está em
-        </p>
+      <div className="mx-auto max-w-6xl px-4 -mt-10 relative z-10">
         <div className="flex items-end gap-4">
-          <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl overflow-hidden bg-card border-4 border-background shadow-bloom shrink-0 animate-breathe">
+          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl overflow-hidden bg-card border-2 border-background shadow-soft shrink-0">
             {store.logo_url ? (
               <img src={store.logo_url} alt={`Logo ${store.name}`} className="h-full w-full object-cover" />
             ) : (
-              <div className="h-full w-full flex items-center justify-center bg-secondary text-3xl">🌿</div>
+              <div className="h-full w-full flex items-center justify-center bg-secondary text-2xl">🏪</div>
             )}
           </div>
           <div className="flex-1 min-w-0 pb-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-display text-3xl sm:text-4xl font-medium text-foreground truncate tracking-tight">
+              <h1 className="font-display text-2xl sm:text-3xl text-foreground truncate">
                 {store.name}
               </h1>
               {store.verified && (
                 <span title="Loja verificada" className="inline-flex items-center text-primary">
-                  <BadgeCheck className="h-6 w-6" fill="currentColor" stroke="hsl(var(--primary-foreground))" />
+                  <BadgeCheck className="h-5 w-5" fill="currentColor" stroke="hsl(var(--primary-foreground))" />
                 </span>
               )}
             </div>
             {store.slogan && (
-              <p className="font-display text-sm sm:text-base text-muted-foreground italic mt-1">"{store.slogan}"</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{store.slogan}</p>
             )}
           </div>
         </div>

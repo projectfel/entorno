@@ -161,7 +161,7 @@ const CartDrawer = () => {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
-          <SheetTitle className="font-display text-2xl font-medium text-foreground">Seu cesto</SheetTitle>
+          <SheetTitle className="font-display text-xl text-foreground">Seu carrinho</SheetTitle>
           <p className="text-xs text-muted-foreground -mt-1">Reunindo o que você levou hoje</p>
         </SheetHeader>
 
