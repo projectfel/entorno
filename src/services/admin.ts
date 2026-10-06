@@ -104,7 +104,22 @@ export const adminService = {
     const { data, error } = await supabase.functions.invoke("admin-create-store-owner", {
       body: params,
     });
-    if (error) throw error;
+    if (error) {
+      let message = error.message;
+      const ctx = (error as { context?: Response }).context;
+      if (ctx && typeof ctx.json === "function") {
+        try {
+          const body = (await ctx.json()) as { error?: string };
+          if (body?.error) message = body.error;
+        } catch {
+          /* ignore parse errors */
+        }
+      }
+      if (/weak|easy to guess|pwned/i.test(message)) {
+        message = "Senha fraca ou já vazada na internet. Escolha uma senha mais forte (ex.: misture letras, números e símbolos).";
+      }
+      throw new Error(message);
+    }
     if (data?.error) throw new Error(data.error);
     return data;
   },
